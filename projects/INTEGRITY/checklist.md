@@ -3,7 +3,7 @@
 **Project:** INTEGRITY  
 **Total Skills:** 44  
 **Created:** April 29, 2026  
-**Last Updated:** April 29, 2026
+**Last Updated:** April 29, 2026 - 14:40 UTC
 
 ---
 
@@ -23,7 +23,7 @@
 |----|-------|--------|------|----------|-------|
 | 1 | research-brief | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
 | 2 | stakeholder-map | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
-| 3 | opportunity-score | ⏳ READY | - | Product Owner | Unlocked - depends on stakeholder-map |
+| 3 | opportunity-score | ⏳ PENDING | - | Product Owner | Generated - awaiting approval |
 
 ---
 
@@ -31,7 +31,7 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 4 | presentation-deck | ⏳ READY | - | Executive Sponsor | Unlocked - depends on research-brief |
+| 4 | presentation-deck | ⏳ PENDING | - | Executive Sponsor | Generated - awaiting approval |
 | 5 | value-proposition | 🔒 BLOCKED | - | - | Depends on presentation-deck |
 
 ---
