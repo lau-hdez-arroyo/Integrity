@@ -22,8 +22,8 @@
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
 | 1 | research-brief | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
-| 2 | stakeholder-map | ⏳ READY | - | Project Lead | Unlocked - depends on research-brief |
-| 3 | opportunity-score | 🔒 BLOCKED | - | - | Depends on stakeholder-map |
+| 2 | stakeholder-map | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
+| 3 | opportunity-score | ⏳ READY | - | Product Owner | Unlocked - depends on stakeholder-map |
 
 ---
 
