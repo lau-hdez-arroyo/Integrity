@@ -72,8 +72,8 @@ Project INTEGRITY is a strategic initiative designed to evolve the software test
 ## Project Standards
 
 - **Language:** English (all documentation)
-- **Privacy-First:** Support for local LLM execution
-- **Fidelity Testing:** Validation of animation smoothness (120fps), haptic feedback, latency
+- **Privacy-First:** Support for local LLM execution for data sovereignty
+- **Premium User Experience:** Validation of performance metrics, responsive feedback, and system smoothness
 - **Transparency:** Software Integrity Score instead of Pass/Fail reports
 
 ---
