@@ -21,8 +21,8 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 1 | research-brief | ⏳ PENDING | Apr 29 | Lau Hernández | Awaiting first approval |
-| 2 | stakeholder-map | 🔒 BLOCKED | - | - | Depends on research-brief |
+| 1 | research-brief | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
+| 2 | stakeholder-map | ⏳ READY | - | Project Lead | Unlocked - depends on research-brief |
 | 3 | opportunity-score | 🔒 BLOCKED | - | - | Depends on stakeholder-map |
 
 ---
@@ -31,7 +31,7 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 4 | presentation-deck | 🔒 BLOCKED | - | - | Depends on research-brief |
+| 4 | presentation-deck | ⏳ READY | - | Executive Sponsor | Unlocked - depends on research-brief |
 | 5 | value-proposition | 🔒 BLOCKED | - | - | Depends on presentation-deck |
 
 ---
@@ -40,7 +40,7 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 6 | problem-register | 🔒 BLOCKED | - | - | Depends on research-brief |
+| 6 | problem-register | ⏳ READY | - | Product Owner | Unlocked - depends on research-brief |
 | 7 | use-case | 🔒 BLOCKED | - | - | Depends on problem-register |
 | 8 | priority-matrix | 🔒 BLOCKED | - | - | Depends on use-case |
 
@@ -156,9 +156,9 @@
 
 | Status | Count | Percentage |
 |--------|-------|-----------|
-| ✅ SIGNED | 0 | 0% |
-| ⏳ PENDING | 1 | 2% |
-| 🔒 BLOCKED | 43 | 98% |
+| ✅ SIGNED | 1 | 2% |
+| ⏳ READY | 3 | 7% |
+| 🔒 BLOCKED | 40 | 91% |
 | ⊘ N/A | 0 | 0% |
 | **Total** | **44** | **100%** |
 
@@ -167,10 +167,10 @@
 ## Project Progress
 
 ```
-███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 2% Complete
+██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 9% Complete
 ```
 
-**Current Milestone:** Discovery Phase - Research Brief (Pending Approval)
+**Current Milestone:** Discovery Phase Complete - Ready for Stakeholder Mapping
 
 ---
 
