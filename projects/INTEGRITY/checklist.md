@@ -23,7 +23,7 @@
 |----|-------|--------|------|----------|-------|
 | 1 | research-brief | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
 | 2 | stakeholder-map | ✅ SIGNED | Apr 29 | Laura Vanessa Hernández Benítez | Approved |
-| 3 | opportunity-score | ⏳ PENDING | - | Product Owner | Generated - awaiting approval |
+| 3 | opportunity-score | ✅ SIGNED | Apr 30 | Product Owner | Approved - unlocks use-case |
 
 ---
 
@@ -31,8 +31,8 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 4 | presentation-deck | ⏳ PENDING | - | Executive Sponsor | Generated - awaiting approval |
-| 5 | value-proposition | 🔒 BLOCKED | - | - | Depends on presentation-deck |
+| 4 | presentation-deck | ✅ SIGNED | Apr 30 | Executive Sponsor | Approved - board ready |
+| 5 | value-proposition | ⏳ READY | - | - | Unlocked - depends on presentation-deck |
 
 ---
 
@@ -40,8 +40,8 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 6 | problem-register | ⏳ READY | - | Product Owner | Unlocked - depends on research-brief |
-| 7 | use-case | 🔒 BLOCKED | - | - | Depends on problem-register |
+| 6 | problem-register | ⏳ READY | - | - | Unlocked - depends on research-brief |
+| 7 | use-case | ⏳ READY | - | - | Unlocked - depends on opportunity-score |
 | 8 | priority-matrix | 🔒 BLOCKED | - | - | Depends on use-case |
 
 ---
