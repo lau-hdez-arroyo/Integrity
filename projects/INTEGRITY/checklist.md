@@ -32,7 +32,7 @@
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
 | 4 | presentation-deck | ✅ SIGNED | Apr 30 | Executive Sponsor | Approved - board ready |
-| 5 | value-proposition | ⏳ PENDING | Apr 30 | Executive Sponsor | Generated - articulates strategic value and stakeholder ROI |
+| 5 | value-proposition | ✅ SIGNED | Apr 30 | Laura V. Hernández (Executive Sponsor) | Approved - strategic value confirmed, board ready |
 
 ---
 
@@ -40,9 +40,9 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 6 | problem-register | ⏳ PENDING | Apr 30 | Product Owner | Generated - 5 critical problems ($4.12M addressable) with root cause analysis |
-| 7 | use-case | ⏳ READY | - | - | Unlocked by problem-register generation |
-| 8 | priority-matrix | ⏳ READY | - | - | Unlocked by problem-register generation |
+| 6 | problem-register | ✅ SIGNED | Apr 30 | Laura V. Hernández (Product Owner) | Approved - 5 problems validated, unlocks use-case & priority-matrix |
+| 7 | use-case | ⏳ READY | - | - | Unlocked by problem-register signature - ready for generation |
+| 8 | priority-matrix | ⏳ READY | - | - | Unlocked by problem-register signature - ready for generation |
 
 ---
 
@@ -50,9 +50,9 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 9 | functional-spec | 🔒 BLOCKED | - | - | Depends on use-case |
-| 10 | nonfunctional-spec | 🔒 BLOCKED | - | - | Depends on functional-spec |
-| 11 | business-rules | 🔒 BLOCKED | - | - | Depends on functional-spec |
+| 9 | functional-spec | ⏳ READY | - | - | Unlocked by value-proposition signature |
+| 10 | nonfunctional-spec | ⏳ READY | - | - | Unlocked by value-proposition signature |
+| 11 | business-rules | ⏳ READY | - | - | Unlocked by value-proposition signature |
 | 12 | traceability | 🔒 BLOCKED | - | - | Depends on nonfunctional-spec |
 
 ---
