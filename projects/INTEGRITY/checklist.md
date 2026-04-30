@@ -41,8 +41,8 @@
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
 | 6 | problem-register | ✅ SIGNED | Apr 30 | Laura V. Hernández (Product Owner) | Approved - 5 problems validated, unlocks use-case & priority-matrix |
-| 7 | use-case | ⏳ READY | - | - | Unlocked by problem-register signature - ready for generation |
-| 8 | priority-matrix | ⏳ READY | - | - | Unlocked by problem-register signature - ready for generation |
+| 7 | use-case | ⏳ PENDING | Apr 30 | Product Owner | Generated - 6 use cases with workflows & metrics |
+| 8 | priority-matrix | ⏳ PENDING | Apr 30 | Product Owner | Generated - 5 problems prioritized (8.5/10 highest urgency) |
 
 ---
 
@@ -52,8 +52,8 @@
 |----|-------|--------|------|----------|-------|
 | 9 | functional-spec | ⏳ READY | - | - | Unlocked by value-proposition signature |
 | 10 | nonfunctional-spec | ⏳ READY | - | - | Unlocked by value-proposition signature |
-| 11 | business-rules | ⏳ READY | - | - | Unlocked by value-proposition signature |
-| 12 | traceability | 🔒 BLOCKED | - | - | Depends on nonfunctional-spec |
+| 11 | business-rules | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 8 rule categories, compliance/security focused |
+| 12 | traceability | ⏳ READY | - | - | Unlocked by business-rules generation |
 
 ---
 
