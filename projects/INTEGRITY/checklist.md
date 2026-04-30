@@ -57,16 +57,15 @@
 
 ---
 
-## Phase 05: Architecture (6 Skills)
+## Phase 05: Architecture (5 Skills)
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 13 | design-doc | 🔒 BLOCKED | - | - | Depends on nonfunctional-spec |
-| 14 | c4-diagrams | 🔒 BLOCKED | - | - | Depends on design-doc |
-| 15 | adr | 🔒 BLOCKED | - | - | Depends on design-doc |
-| 16 | data-model | 🔒 BLOCKED | - | - | Depends on design-doc |
-| 17 | api-spec | 🔒 BLOCKED | - | - | Depends on design-doc |
-| 18 | threat-model | 🔒 BLOCKED | - | - | Depends on design-doc |
+| 13 | adr | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 10 decisions, cost model, compliance |
+| 14 | api-spec | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 14 endpoints, OAuth 2.0, rate limiting |
+| 15 | c4-diagrams | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 5 levels: context, containers, components, code, deployment |
+| 16 | design-doc | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 6 subsystems, heat map/risk/selection engines |
+| 17 | threat-model | ⏳ PENDING | Apr 30 | Technical Lead | Generated - STRIDE analysis, 12 threats, 40+ controls
 
 ---
 
