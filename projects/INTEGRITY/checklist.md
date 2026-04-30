@@ -61,22 +61,22 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 13 | adr | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 10 decisions, cost model, compliance |
-| 14 | api-spec | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 14 endpoints, OAuth 2.0, rate limiting |
-| 15 | c4-diagrams | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 5 levels: context, containers, components, code, deployment |
-| 16 | design-doc | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 6 subsystems, heat map/risk/selection engines |
-| 17 | threat-model | ⏳ PENDING | Apr 30 | Technical Lead | Generated - STRIDE analysis, 12 threats, 40+ controls
+| 13 | adr | ✅ SIGNED | Apr 30 | Technical Lead | Approved - 10 decisions, $665K cost, Microsoft-first |
+| 14 | api-spec | ✅ SIGNED | Apr 30 | Technical Lead | Approved - 14 endpoints, OAuth 2.0, rate limiting |
+| 15 | c4-diagrams | ✅ SIGNED | Apr 30 | Technical Lead | Approved - 5 levels, 500+ users scalable |
+| 16 | design-doc | ✅ SIGNED | Apr 30 | Technical Lead | Approved - 6 subsystems, resilience + caching |
+| 17 | threat-model | ✅ SIGNED | Apr 30 | Technical Lead | Approved - STRIDE, 12 threats, residual risk LOW
 
 ---
 
-## Phase 06: Planning (4 Skills)
+## Phase 06: Planning (4/4 - ⏳ PENDING APPROVAL)
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 19 | wbs | 🔒 BLOCKED | - | - | Depends on priority-matrix |
-| 20 | schedule | 🔒 BLOCKED | - | - | Depends on wbs |
-| 21 | risk-register | 🔒 BLOCKED | - | - | Depends on schedule |
-| 22 | proposal | 🔒 BLOCKED | - | - | Depends on risk-register |
+| 19 | wbs | ⏳ PENDING | Apr 30 | Project Manager | Generated - 5 problems, 24 WPs, 581 hours |
+| 20 | schedule | ⏳ PENDING | Apr 30 | Project Manager | Generated - 7-day PoC, 6-month dev, Aug 15 go-live |
+| 21 | risk-register | ⏳ PENDING | Apr 30 | Project Manager | Generated - 12 risks, $50K contingency |
+| 22 | proposal | ⏳ PENDING | Apr 30 | Board of Directors | Generated - $4.73M value, 390% ROI |
 
 ---
 
