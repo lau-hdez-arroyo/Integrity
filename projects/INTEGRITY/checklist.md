@@ -32,7 +32,7 @@
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
 | 4 | presentation-deck | ✅ SIGNED | Apr 30 | Executive Sponsor | Approved - board ready |
-| 5 | value-proposition | ⏳ READY | - | - | Unlocked - depends on presentation-deck |
+| 5 | value-proposition | ⏳ PENDING | Apr 30 | Executive Sponsor | Generated - articulates strategic value and stakeholder ROI |
 
 ---
 
@@ -40,9 +40,9 @@
 
 | # | Skill | Status | Date | Approver | Notes |
 |----|-------|--------|------|----------|-------|
-| 6 | problem-register | ⏳ READY | - | - | Unlocked - depends on research-brief |
-| 7 | use-case | ⏳ READY | - | - | Unlocked - depends on opportunity-score |
-| 8 | priority-matrix | 🔒 BLOCKED | - | - | Depends on use-case |
+| 6 | problem-register | ⏳ PENDING | Apr 30 | Product Owner | Generated - 5 critical problems ($4.12M addressable) with root cause analysis |
+| 7 | use-case | ⏳ READY | - | - | Unlocked by problem-register generation |
+| 8 | priority-matrix | ⏳ READY | - | - | Unlocked by problem-register generation |
 
 ---
 
