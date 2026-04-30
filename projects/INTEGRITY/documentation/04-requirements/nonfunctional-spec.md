@@ -380,13 +380,14 @@ Content-Security-Policy: default-src 'self'
 ### 8.2 Platform Compatibility
 
 **Development:**
-- macOS 10.15+
-- Windows 10+
-- Ubuntu 20.04+
+- Windows 10+ (primary)
+- macOS 10.15+ (secondary)
+- Visual Studio / VS Code with C# extensions
 
 **Production:**
-- Docker containers (Kubernetes orchestration)
-- AWS EC2, Azure VMs, on-premises VMs
+- Azure App Service (primary deployment)
+- Azure Container Instances (scalable workloads)
+- Single-cloud Microsoft Azure (no multi-cloud complexity)
 
 ### 8.3 API Compatibility
 
@@ -400,15 +401,37 @@ Content-Security-Policy: default-src 'self'
 
 ## 9. Cost & Resource Requirements
 
-### 9.1 Infrastructure Costs (Annual)
+### 9.1 Infrastructure Costs (Annual) - Phased Approach
+
+**PoC Phase Costs (7 days - Supabase)**
+
+| Component | Cost |
+|-----------|------|
+| Supabase (PostgreSQL managed) | FREE (generous free tier) |
+| Azure App Service (B1 minimal) | $11 (7 days cost) |
+| Application Insights (basic) | FREE |
+| Azure Service Bus (minimal msgs) | $2 (7 days) |
+| **PoC Total** | **~$15 (negligible)** |
+
+**Production Phase (Annual - Azure SQL)**
 
 | Component | Current | With INTEGRITY | Savings |
 |-----------|---------|----------------|---------|
-| Compute (CI/CD) | $1.0M | $350K | $650K |
-| Storage (logs/artifacts) | $400K | $180K | $220K |
-| Database | $200K | $120K | $80K |
-| Monitoring/Logging | $300K | $300K | $0 |
-| **Total** | **$1.9M** | **$950K** | **$950K** |
+| Compute (App Service P1v2) | $1.0M | $240K | $760K |
+| Storage (blob/archive) | $400K | $120K | $280K |
+| Database (Azure SQL) | $200K | $80K | $120K |
+| Cache (Azure Redis) | $150K | $45K | $105K |
+| Messaging (Service Bus) | $100K | $30K | $70K |
+| Monitoring (Azure Monitor) | $150K | $150K | $0 |
+| **Annual Total** | **$2.0M** | **$665K** | **$1.335M (67% reduction)** |
+
+**Cost Optimization Strategies:**
+- ✅ Supabase free tier for rapid PoC validation (zero cost)
+- ✅ Azure Reserved Instances for production (30% discount)
+- ✅ Spot pricing for non-critical batch jobs
+- ✅ Auto-scaling based on heat map load
+- ✅ Aggressive data compression (logs to blob tiers)
+- ✅ Single-cloud reduces licensing complexity
 
 ### 9.2 Team & Support
 
@@ -423,28 +446,45 @@ Content-Security-Policy: default-src 'self'
 
 ## 10. Constraints & Assumptions
 
-### 10.1 Technical Constraints
+### 10.1 Technical Constraints (Microsoft Stack - Cost Optimized)
 
-- **Programming Language:** Python (backend), TypeScript/React (frontend)
-- **Database:** PostgreSQL (primary), Redis (cache)
-- **Message Queue:** RabbitMQ (async processing)
-- **Container Orchestration:** Kubernetes
-- **Infrastructure:** AWS or Azure or on-premises VMs
+**PoC Phase (7 days - Minimal Cost):**
+- **Programming Language:** C# / .NET 7+ (backend), TypeScript/React (frontend)
+- **Database:** Supabase (PostgreSQL managed, free tier for PoC volume)
+- **Cache:** In-memory cache (.NET MemoryCache for PoC)
+- **Message Queue:** Azure Service Bus (small scale) OR Redis Streams (Supabase optional)
+- **Deployment:** Azure App Service (B1 tier, minimal cost)
+- **Monitoring:** Application Insights (basic tier)
+- **Storage:** Supabase Storage or Azure Blob Storage
+
+**Production Phase (Post-PoC):**
+- **Database:** Azure SQL Database (managed, SOC 2 compliant)
+- **Cache:** Azure Cache for Redis (managed service)
+- **Message Queue:** Azure Service Bus (production grade)
+- **Deployment:** Azure App Service (P1v2 tier with auto-scale)
+- **Monitoring:** Full Azure Monitor + Application Insights
+- **Storage:** Azure Blob Storage with tiering
 
 ### 10.2 Organizational Constraints
 
-- **Team Size:** 5 engineers initially, scale to 10+
-- **Timeline:** 7-day PoC, 4-week pilot, 3-month production rollout
-- **Budget:** $800K for Year 1 (development + infrastructure)
+- **Team Size:** 5 engineers initially (.NET/C# expertise), scale to 10+
+- **PoC Timeline:** 7-day sprint (April 30 - May 7)
+- **Pilot Timeline:** 4-week pilot post-PoC approval
+- **Production Rollout:** 3 months (Q2-Q3 2026)
+- **PoC Budget:** ~$500 (Supabase free tier, minimal Azure services)
+- **Year 1 Production Budget:** $500K (development + infrastructure with Supabase-to-Azure-SQL migration)
+- **Cost Model:** Microsoft partner discounts + Supabase cost-effective alternative for PoC
 - **Approval Authority:** Executive Sponsor (Laura Hernández)
+- **Database Migration Strategy:** Supabase → Azure SQL (automatic migration post-PoC approval)
 
 ### 10.3 External Dependencies
 
-- Azure DevOps (ADO) API availability
-- Git repository (GitHub/GitLab) connectivity
-- Production observability platform (ELK/Datadog)
-- SonarQube instance accessibility
-- Claude LLM API (for code analysis)
+- Azure DevOps (ADO) API availability (Microsoft first-party)
+- Git repository (Azure Repos) connectivity
+- Production observability: Azure Monitor + Application Insights (first-party)
+- Code quality: Azure Code Analysis (built-in .NET) or SonarQube (optional)
+- Claude LLM API (for semantic code analysis)
+- Azure Service Bus for messaging (managed first-party service)
 
 ---
 
@@ -455,4 +495,9 @@ Content-Security-Policy: default-src 'self'
 **Skill:** Non-Functional-Spec  
 **Approver:** Technical Lead  
 **Status:** ⏳ PENDING APPROVAL  
-**Version:** 1.0
+**Version:** 1.0 (Updated for PoC with Supabase)
+
+**Key Note on Database Strategy:**
+- PoC (7 days): Supabase PostgreSQL managed (free tier, minimal cost)
+- Production (post-approval): Migrate to Azure SQL Database (compliance, scale)
+- Benefits: Rapid PoC validation, zero PoC infrastructure cost, seamless production migration

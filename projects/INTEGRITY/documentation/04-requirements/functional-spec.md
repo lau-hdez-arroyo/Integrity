@@ -259,38 +259,38 @@ Project INTEGRITY's functional specification details **what the system does** �
 
 ### 1.6 Integration with CI/CD Pipeline
 
-**Purpose:** Seamlessly integrate with existing GitLab/GitHub Actions CI/CD infrastructure
+**Purpose:** Seamlessly integrate with Azure DevOps Pipelines (Microsoft first-party CI/CD)
 
 **Functional Requirements:**
 
 | ID | Requirement | Description | Priority |
 |----|-------------|-------------|----------|
-| FM-6.1 | Webhook Integration | Receive push/PR events from Git | HIGH |
-| FM-6.2 | Test Orchestration | Execute tests in CI/CD environment | HIGH |
-| FM-6.3 | Results Reporting | Report results back to PR comments | HIGH |
-| FM-6.4 | Release Gates | Block release if quality gates fail | HIGH |
-| FM-6.5 | Artifact Caching | Cache test artifacts for speed | MEDIUM |
-| FM-6.6 | Parallel Execution | Run independent tests in parallel | HIGH |
+| FM-6.1 | ADO Pipeline Webhooks | Receive push/PR events from Azure Repos | HIGH |
+| FM-6.2 | Test Orchestration | Execute tests in Azure Pipelines agents | HIGH |
+| FM-6.3 | Results Reporting | Report results back to PR comments (native ADO) | HIGH |
+| FM-6.4 | Release Gates | Block release if quality gates fail (ADO approval) | HIGH |
+| FM-6.5 | Artifact Caching | Cache test artifacts in Azure Artifacts | MEDIUM |
+| FM-6.6 | Parallel Execution | Run independent tests in parallel jobs | HIGH |
 | FM-6.7 | Timeout Handling | Handle long-running tests gracefully | MEDIUM |
 
-**Integration Architecture:**
+**Integration Architecture (Microsoft Stack):**
 
 ```
-Code Push
+Code Push (Azure Repos)
     ↓
-Git Webhook → INTEGRITY API
+Azure Pipelines Webhook → INTEGRITY API (.NET service)
     ↓
-Test Selection Engine
+Test Selection Engine (C# logic, Azure Functions)
     ↓
-CI/CD Pipeline (orchestration)
+Azure DevOps Pipeline (native orchestration)
     ↓
-Test Execution (parallel)
+Test Execution (parallel jobs, low-cost agents)
     ↓
-Results Collection & Analysis
+Results Collection (Azure SQL storage)
     ↓
-PR Comments + Metrics Dashboard
+PR Comments + Azure Dashboard
     ↓
-Release Gate Decision
+Azure Approval Gate Decision
 ```
 
 **Success Criteria:**
@@ -500,7 +500,9 @@ Code Change + Context
 - Identify risky modules
 - Track coverage trends
 
-**Platform:** SonarQube API
+**Platform:**
+- **Primary:** Azure Code Analysis / Roslyn analyzers (built into .NET, no cost)
+- **Alternative:** SonarQube API (optional, for gradual migration)
 
 ---
 
@@ -536,18 +538,22 @@ Code Change + Context
 ## 6. Assumptions & Dependencies
 
 **Assumptions:**
-- Production logs available (ELK/Datadog)
-- ADO TestPlan APIs accessible
-- Git repository accessible
-- SonarQube metrics available
+- Production logs available (Azure Monitor / Application Insights)
+- ADO TestPlan APIs accessible (native Azure DevOps)
+- Azure Repos repository accessible
+- Code quality metrics available (Azure Code Analysis or SonarQube)
 - <2GB daily log volume
+- **PoC Phase:** Supabase PostgreSQL available (free tier for 7-day sprint)
+- **Production Phase:** Azure SQL Database for compliance & scale
 
 **Dependencies:**
-- Azure DevOps connectivity
-- Git repository access
-- Production observability platform
-- SonarQube instance
+- Azure DevOps connectivity (first-party)
+- Azure Repos access (integrated with ADO)
+- Azure Monitor for observability
+- Azure Code Analysis (built-in) or SonarQube (optional)
 - Claude LLM API access
+- **PoC:** Supabase API (manages data for PoC validation)
+- **Production:** Azure SQL Database + Azure Service Bus
 
 ---
 
