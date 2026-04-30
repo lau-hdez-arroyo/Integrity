@@ -53,7 +53,7 @@
 | 9 | functional-spec | \u23f3 PENDING | Apr 30 | Technical Lead | Generated - 7 functional areas, 23 requirements, API specs |
 | 10 | nonfunctional-spec | \u23f3 PENDING | Apr 30 | Technical Lead | Generated - Performance, Security, Reliability, Cost |
 | 11 | business-rules | ⏳ PENDING | Apr 30 | Technical Lead | Generated - 8 rule categories, compliance/security focused |
-| 12 | traceability | ⏳ READY | - | - | Unlocked by business-rules generation |
+| 12 | traceability | ⏳ PENDING | Apr 30 | Technical Lead | Generated - Requirements-to-implementation mapping, Phase 05 unlock conditions |
 
 ---
 
