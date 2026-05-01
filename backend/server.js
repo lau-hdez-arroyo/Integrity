@@ -22,9 +22,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize Supabase
-await initSupabase();
-
 // Middleware
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
@@ -35,31 +32,69 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(requestLogger);
 
-// Routes
+// Health check route (NO AUTH REQUIRED)
+app.use('/health', healthRoutes);
 app.use('/api/v1/health', healthRoutes);
-app.use('/api/v1/projects', projectRoutes);
-app.use('/api/v1/heatmaps', heatMapRoutes);
+
+// Protected routes (AUTH REQUIRED)
+app.use('/api/v1/projects', authMiddleware, projectRoutes);
+app.use('/api/v1/heatmaps', authMiddleware, heatMapRoutes);
 app.use('/api/v1/test-selection', authMiddleware, testSelectionRoutes);
 app.use('/api/v1/risk-assessment', authMiddleware, riskAssessmentRoutes);
 app.use('/api/v1/dashboard', authMiddleware, dashboardRoutes);
 
-// Error Handling
-app.use(errorHandler);
-
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({
-    error: 'Not Found',
+    status: 'error',
+    message: 'Endpoint not found',
     path: req.path,
     method: req.method,
+    statusCode: 404,
   });
 });
 
+// Error Handling (MUST BE LAST)
+app.use(errorHandler);
+
 // Start Server
-app.listen(PORT, () => {
-  console.log(`✅ INTEGRITY API running on http://localhost:${PORT}`);
-  console.log(`📚 Swagger UI: http://localhost:${PORT}/api/v1/health`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-});
+async function start() {
+  try {
+    // Initialize Supabase
+    await initSupabase();
+
+    const server = app.listen(PORT, () => {
+      console.log(`\n✅ INTEGRITY API started successfully`);
+      console.log(`📍 Server: http://localhost:${PORT}`);
+      console.log(`🏥 Health: http://localhost:${PORT}/health`);
+      console.log(`📚 API Base: http://localhost:${PORT}/api/v1`);
+      console.log(`\n🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌍 CORS enabled for: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}\n`);
+    });
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('\n🛑 SIGTERM received, shutting down gracefully...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    });
+
+    process.on('SIGINT', () => {
+      console.log('\n🛑 SIGINT received, shutting down gracefully...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error.message);
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+start();
 
 export default app;

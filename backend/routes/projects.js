@@ -3,53 +3,253 @@ import { getSupabaseClient } from '../db/supabase.js';
 
 const router = Router();
 
-// GET all projects
-router.get('/', async (req, res) => {
+/**
+ * GET /api/v1/projects
+ * List all projects accessible to user
+ */
+router.get('/', async (req, res, next) => {
   try {
     const supabase = getSupabaseClient();
+
+    // Get all projects (in production, filter by user access)
     const { data, error } = await supabase
       .from('projects')
-      .select('*');
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    res.json(data);
+    if (error) {
+      console.error('Database error:', error);
+      throw new Error('Failed to fetch projects');
+    }
+
+    res.json({
+      status: 'success',
+      data: data || [],
+      count: (data || []).length,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
-// GET project by ID
-router.get('/:projectId', async (req, res) => {
+/**
+ * GET /api/v1/projects/:projectId
+ * Get detailed project information
+ */
+router.get('/:projectId', async (req, res, next) => {
   try {
     const { projectId } = req.params;
+
+    if (!projectId || projectId.length !== 36) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid project ID format',
+        statusCode: 400,
+      });
+    }
+
     const supabase = getSupabaseClient();
-    const { data, error } = await supabase
+
+    // Get project with members
+    const { data: project, error: projectError } = await supabase
       .from('projects')
       .select('*')
       .eq('project_id', projectId)
       .single();
 
-    if (error) throw error;
-    res.json(data);
+    if (projectError || !project) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Project not found',
+        statusCode: 404,
+      });
+    }
+
+    // Get project members
+    const { data: members, error: membersError } = await supabase
+      .from('project_members')
+      .select('*, users(email, role)')
+      .eq('project_id', projectId);
+
+    if (membersError) {
+      console.error('Error fetching members:', membersError);
+    }
+
+    res.json({
+      status: 'success',
+      data: {
+        ...project,
+        members: members || [],
+      },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
-// POST create project
-router.post('/', async (req, res) => {
+/**
+ * POST /api/v1/projects
+ * Create a new project (Admin only)
+ */
+router.post('/', async (req, res, next) => {
   try {
-    const { name, repository_url } = req.body;
+    const { name, description, repository_url } = req.body;
+
+    // Validation
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Project name is required',
+        statusCode: 400,
+      });
+    }
+
+    if (name.length > 255) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Project name must be 255 characters or less',
+        statusCode: 400,
+      });
+    }
+
     const supabase = getSupabaseClient();
-    const { data, error } = await supabase
+
+    // Create project
+    const { data: project, error: createError } = await supabase
       .from('projects')
-      .insert([{ name, repository_url }])
+      .insert([
+        {
+          name: name.trim(),
+          repository_url: repository_url || null,
+        },
+      ])
       .select();
 
-    if (error) throw error;
-    res.status(201).json(data[0]);
+    if (createError) {
+      console.error('Error creating project:', createError);
+      throw new Error('Failed to create project');
+    }
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Project created successfully',
+      data: project[0],
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
+  }
+});
+
+/**
+ * PUT /api/v1/projects/:projectId
+ * Update project (Admin only)
+ */
+router.put('/:projectId', async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const { name, description, repository_url } = req.body;
+
+    if (!projectId || projectId.length !== 36) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid project ID format',
+        statusCode: 400,
+      });
+    }
+
+    const supabase = getSupabaseClient();
+
+    // Verify project exists
+    const { data: existing, error: checkError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('project_id', projectId)
+      .single();
+
+    if (checkError || !existing) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Project not found',
+        statusCode: 404,
+      });
+    }
+
+    // Update project
+    const { data: updated, error: updateError } = await supabase
+      .from('projects')
+      .update({
+        name: name || existing.name,
+        repository_url: repository_url !== undefined ? repository_url : existing.repository_url,
+      })
+      .eq('project_id', projectId)
+      .select();
+
+    if (updateError) {
+      console.error('Error updating project:', updateError);
+      throw new Error('Failed to update project');
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Project updated successfully',
+      data: updated[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * DELETE /api/v1/projects/:projectId
+ * Delete a project (Admin only)
+ */
+router.delete('/:projectId', async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+
+    if (!projectId || projectId.length !== 36) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid project ID format',
+        statusCode: 400,
+      });
+    }
+
+    const supabase = getSupabaseClient();
+
+    // Verify project exists
+    const { data: existing, error: checkError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('project_id', projectId)
+      .single();
+
+    if (checkError || !existing) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Project not found',
+        statusCode: 404,
+      });
+    }
+
+    // Delete project (CASCADE will delete related records)
+    const { error: deleteError } = await supabase
+      .from('projects')
+      .delete()
+      .eq('project_id', projectId);
+
+    if (deleteError) {
+      console.error('Error deleting project:', deleteError);
+      throw new Error('Failed to delete project');
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Project deleted successfully',
+      data: { project_id: projectId },
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
