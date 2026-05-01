@@ -1,6 +1,7 @@
 using INTEGRITY.API.Data;
 using INTEGRITY.API.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 
@@ -25,18 +26,36 @@ namespace INTEGRITY.API
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            // 1. Database Configuration
+            // 1. Database Configuration (PostgreSQL + Supabase)
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<IntegrityDbContext>(options =>
-                options.UseSqlServer(connectionString, sqlOptions => 
+                options.UseNpgsql(connectionString, sqlOptions => 
                 {
                     sqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
-                        maxRetryDelaySeconds: 10,
-                        errorNumbersToAdd: null);
+                        maxRetryDelaySeconds: 10);
                 }));
 
-            // 2. Redis Caching Configuration
+            // 2. Supabase REST API Client (API Key Authentication)
+            services.AddHttpClient<ISupabaseClient, SupabaseClient>((serviceProvider, httpClient) =>
+            {
+                var supabaseUrl = _configuration["Supabase:Url"];
+                var supabaseKey = _configuration["Supabase:PublishableKey"];
+                
+                if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
+                {
+                    throw new InvalidOperationException(
+                        "Supabase:Url and Supabase:PublishableKey must be configured in appsettings");
+                }
+                
+                var restApiUrl = $"{supabaseUrl}/rest/v1/";
+                httpClient.BaseAddress = new Uri(restApiUrl);
+                httpClient.DefaultRequestHeaders.Add("apikey", supabaseKey);
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {supabaseKey}");
+                httpClient.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+            // 3. Redis Caching Configuration
             var redisConnection = _configuration.GetConnectionString("Redis");
             if (!string.IsNullOrEmpty(redisConnection))
             {
@@ -48,11 +67,11 @@ namespace INTEGRITY.API
                 services.AddMemoryCache(); // Fallback to in-memory cache for local development
             }
 
-            // 3. Repository Pattern & Unit of Work
+            // 4. Repository Pattern & Unit of Work
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // 4. Business Services
+            // 5. Business Services
             services.AddScoped<IHeatMapService, HeatMapService>();
             services.AddScoped<ITestSelectionService, TestSelectionService>();
             services.AddScoped<IRiskAssessmentService, RiskAssessmentService>();
@@ -60,12 +79,20 @@ namespace INTEGRITY.API
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IAuditService, AuditService>();
 
-            // 5. Authentication & Authorization
+            // 6. Authentication & Authorization (Supabase JWT)
             services.AddAuthentication("Bearer")
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = _configuration["Auth:Authority"];
-                    options.Audience = _configuration["Auth:Audience"];
+                    options.Authority = _configuration["Auth:Authority"] ?? 
+                                       (_configuration["Supabase:Url"] + "/auth/v1");
+                    options.Audience = _configuration["Auth:Audience"] ?? "authenticated";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    };
                 });
 
             services.AddAuthorization(options =>
@@ -76,7 +103,7 @@ namespace INTEGRITY.API
                     policy.RequireRole("Admin", "ProjectManager", "Developer", "QA"));
             });
 
-            // 6. Controllers & API Documentation
+            // 7. Controllers & API Documentation
             services.AddControllers();
             services.AddSwaggerGen(options =>
             {
@@ -121,7 +148,7 @@ namespace INTEGRITY.API
                     options.IncludeXmlComments(xmlPath);
             });
 
-            // 7. CORS Configuration
+            // 8. CORS Configuration
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactApp", policy =>
@@ -132,12 +159,12 @@ namespace INTEGRITY.API
                     .AllowCredentials());
             });
 
-            // 8. Health Checks
+            // 9. Health Checks
             services.AddHealthChecks()
                 .AddDbContextCheck<IntegrityDbContext>()
                 .AddRedis(redisConnection ?? "localhost:6379");
 
-            // 9. Logging
+            // 10. Logging
             services.AddLogging(config =>
             {
                 config.AddConsole();
