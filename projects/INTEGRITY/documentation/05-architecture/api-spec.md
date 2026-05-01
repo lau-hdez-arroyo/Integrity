@@ -606,12 +606,243 @@ Provide immutable audit trail for SOX 404 compliance.
 
 ---
 
-## 6. Health & Status API
+## 6. Administration & Configuration API
+
+### Purpose
+Enable multi-project deployment and integration management.
+
+### 6.1 Create Project
+
+**Endpoint:** `POST /admin/projects`
+
+**Headers:**
+- `Authorization: Bearer $TOKEN` (Admin role required)
+
+**Request**
+
+```json
+{
+  "name": "MyProject",
+  "description": "My critical application",
+  "repository_url": "https://dev.azure.com/myorg/MyProject/_git/myrepo",
+  "repository_type": "AzureDevOps",
+  "team_members": [
+    {
+      "email": "pm@company.com",
+      "role": "project_manager"
+    },
+    {
+      "email": "dev@company.com",
+      "role": "developer"
+    }
+  ]
+}
+```
+
+**Response (201 Created)**
+
+```json
+{
+  "project_id": "proj-20260501-001",
+  "name": "MyProject",
+  "status": "Active",
+  "created_at": "2026-05-01T10:00:00Z",
+  "api_key": "key-integrity-proj-20260501-001"
+}
+```
+
+---
+
+### 6.2 Add Integration Connection
+
+**Endpoint:** `POST /admin/projects/{project_id}/connections`
+
+**Request**
+
+```json
+{
+  "type": "AzureDevOps",
+  "credentials": {
+    "organization_url": "https://dev.azure.com/myorg",
+    "personal_access_token": "***ENCRYPTED***"
+  },
+  "test_connection": true
+}
+```
+
+**Response (201 Created)**
+
+```json
+{
+  "connection_id": "conn-20260501-001",
+  "project_id": "proj-20260501-001",
+  "type": "AzureDevOps",
+  "status": "Active",
+  "last_tested_at": "2026-05-01T10:01:00Z",
+  "test_result": "Connection successful"
+}
+```
+
+---
+
+### 6.3 List Connections
+
+**Endpoint:** `GET /admin/projects/{project_id}/connections`
+
+**Response (200 OK)**
+
+```json
+{
+  "project_id": "proj-20260501-001",
+  "connections": [
+    {
+      "connection_id": "conn-20260501-001",
+      "type": "AzureDevOps",
+      "status": "Active",
+      "created_at": "2026-05-01T10:00:00Z"
+    },
+    {
+      "connection_id": "conn-20260501-002",
+      "type": "SonarQube",
+      "status": "Active",
+      "created_at": "2026-05-01T10:02:00Z"
+    },
+    {
+      "connection_id": "conn-20260501-003",
+      "type": "Datadog",
+      "status": "Inactive",
+      "created_at": "2026-05-01T10:05:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### 6.4 Configure Integration Mapping
+
+**Endpoint:** `POST /admin/projects/{project_id}/mappings`
+
+**Request**
+
+```json
+{
+  "integration_name": "SonarQube",
+  "connection_id": "conn-20260501-002",
+  "mapping_config": {
+    "project_key": "MYPROJECT:main",
+    "server_url": "https://sonarqube.company.com",
+    "sync_frequency": "4h",
+    "metrics_to_sync": ["coverage", "code_quality", "security_issues"]
+  }
+}
+```
+
+**Response (201 Created)**
+
+```json
+{
+  "mapping_id": "map-20260501-001",
+  "project_id": "proj-20260501-001",
+  "integration_name": "SonarQube",
+  "status": "Active",
+  "created_at": "2026-05-01T10:03:00Z"
+}
+```
+
+---
+
+### 6.5 Test Connection
+
+**Endpoint:** `POST /admin/projects/{project_id}/connections/{connection_id}/test`
+
+**Response (200 OK)**
+
+```json
+{
+  "connection_id": "conn-20260501-001",
+  "test_result": "successful",
+  "details": {
+    "status_code": 200,
+    "response_time_ms": 245,
+    "authenticated": true,
+    "organization": "myorg",
+    "projects_accessible": 5
+  }
+}
+```
+
+---
+
+### 6.6 Register Webhook
+
+**Endpoint:** `POST /admin/projects/{project_id}/webhooks`
+
+**Request**
+
+```json
+{
+  "event_type": "commit",
+  "connection_id": "conn-20260501-001",
+  "repository_name": "integrity-core"
+}
+```
+
+**Response (201 Created)**
+
+```json
+{
+  "webhook_id": "hook-20260501-001",
+  "project_id": "proj-20260501-001",
+  "event_type": "commit",
+  "webhook_url": "https://api.integrity.azurewebsites.net/webhooks/proj-20260501-001/commit",
+  "webhook_secret": "secret-***",
+  "status": "Registered",
+  "registered_at": "2026-05-01T10:04:00Z"
+}
+```
+
+---
+
+### 6.7 List Projects
+
+**Endpoint:** `GET /admin/projects`
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `limit` | integer | No | Max results (default: 50) |
+| `offset` | integer | No | Pagination offset (default: 0) |
+| `status` | string | No | Filter by status (Active, Inactive) |
+
+**Response (200 OK)**
+
+```json
+{
+  "total": 12,
+  "projects": [
+    {
+      "project_id": "proj-20260501-001",
+      "name": "MyProject",
+      "repository_type": "AzureDevOps",
+      "status": "Active",
+      "created_at": "2026-05-01T10:00:00Z",
+      "team_size": 8,
+      "active_connections": 3
+    }
+  ]
+}
+```
+
+---
+
+## 7. Health & Status API
 
 ### Purpose
 Monitor API health and service availability.
 
-### 6.1 Health Check
+### 7.1 Health Check
 
 **Endpoint:** `GET /health`
 
@@ -648,7 +879,7 @@ Monitor API health and service availability.
 
 ---
 
-### 6.2 Service Status
+### 7.2 Service Status
 
 **Endpoint:** `GET /status`
 
@@ -738,20 +969,81 @@ curl -X POST https://api.integrity.azurewebsites.net/v1/test-selection/results \
 
 ---
 
+### Example 2: Admin Onboarding Workflow
+
+```bash
+# Step 1: Create new project
+curl -X POST https://api.integrity.azurewebsites.net/admin/projects \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d '{
+    "name": "MyProject",
+    "repository_url": "https://dev.azure.com/myorg/MyProject/_git/myrepo",
+    "repository_type": "AzureDevOps"
+  }'
+# Response: project_id = proj-20260501-001
+
+# Step 2: Add ADO connection
+curl -X POST https://api.integrity.azurewebsites.net/admin/projects/proj-20260501-001/connections \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d '{
+    "type": "AzureDevOps",
+    "credentials": {
+      "organization_url": "https://dev.azure.com/myorg",
+      "personal_access_token": "***"
+    },
+    "test_connection": true
+  }'
+
+# Step 3: Add SonarQube connection
+curl -X POST https://api.integrity.azurewebsites.net/admin/projects/proj-20260501-001/connections \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d '{
+    "type": "SonarQube",
+    "credentials": {
+      "server_url": "https://sonarqube.company.com",
+      "api_token": "***"
+    }
+  }'
+
+# Step 4: Configure mappings
+curl -X POST https://api.integrity.azurewebsites.net/admin/projects/proj-20260501-001/mappings \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d '{
+    "integration_name": "SonarQube",
+    "connection_id": "conn-20260501-002",
+    "mapping_config": {
+      "project_key": "MYPROJECT:main"
+    }
+  }'
+
+# Step 5: Register webhooks
+curl -X POST https://api.integrity.azurewebsites.net/admin/projects/proj-20260501-001/webhooks \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d '{
+    "event_type": "commit",
+    "connection_id": "conn-20260501-001"
+  }'
+```
+
+---
+
 ## Document Information
 
 **Created:** April 30, 2026  
+**Updated:** May 1, 2026 (Added Admin API section)  
 **Phase:** 05-Architecture  
 **Skill:** API Specification  
 **Approver:** Technical Lead (Architecture Review)  
 **Status:** ⏳ PENDING APPROVAL  
-**Version:** 1.0
+**Version:** 1.1
 
 **API Standards:**
 - REST conventions (RFC 7231, 7232, 7235)
 - JSON payloads
 - OAuth 2.0 Bearer tokens
+- Role-based access (Admin, ProjectManager, Developer)
 - Rate limiting: 1000 req/min per token
 - Versioning: v1, v2, etc. in URL path
 - Async operations: 202 Accepted for long-running tasks
 - Pagination: cursor-based for large datasets
+- Encryption: Azure Key Vault for sensitive credentials

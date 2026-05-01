@@ -114,10 +114,11 @@ Integration Layer (Azure Service Bus)
 graph TB
     Web["🖥️ Web Dashboard<br/>(React/TypeScript)<br/>Azure App Service Static Web"]
     Mobile["📱 Mobile App<br/>(React Native)<br/>Same Backend APIs"]
+    Admin["⚙️ Admin Portal<br/>(React/TypeScript)<br/>Azure App Service Static Web<br/>───<br/>• Project Management<br/>• Connection Setup<br/>• Integration Mapping<br/>• Webhook Config"]
     
     APIGateway["⚙️ API Gateway<br/>(Azure API Management)<br/>Authentication, Routing,<br/>Rate Limiting"]
     
-    WebAPI["🔗 Web API<br/>(C# / .NET 7)<br/>Azure App Service<br/>───<br/>• Test Selection Controller<br/>• Heat Map Controller<br/>• Risk Assessment Controller<br/>• Dashboard Controller<br/>• Audit Controller"]
+    WebAPI["🔗 Web API<br/>(C# / .NET 7)<br/>Azure App Service<br/>───<br/>• Test Selection Controller<br/>• Heat Map Controller<br/>• Risk Assessment Controller<br/>• Dashboard Controller<br/>• Admin Controller<br/>• Audit Controller"]
     
     SelEngine["⚡ Test Selection Engine<br/>(C# / .NET 7)<br/>Azure Functions (triggered)<br/>───<br/>• Code Analyzer<br/>• Impact Analyzer<br/>• Test Mapper<br/>• Coverage Calculator"]
     
@@ -127,7 +128,7 @@ graph TB
     
     ServiceBus["📨 Service Bus<br/>(Azure Service Bus)<br/>Message Queue<br/>───<br/>• Test Results Queue<br/>• Notification Queue"]
     
-    SqlDB["🗄️ Production Database<br/>(Azure SQL Database)<br/>───<br/>• Test Execution History<br/>• Heat Maps<br/>• Risk Assessments<br/>• Audit Trail"]
+    SqlDB["🗄️ Production Database<br/>(Azure SQL Database)<br/>───<br/>• Test Execution History<br/>• Heat Maps<br/>• Risk Assessments<br/>• Projects & Connections<br/>• Audit Trail"]
     
     SupabaseDB["🗄️ PoC Database<br/>(Supabase PostgreSQL)<br/>───<br/>• Initial Validation<br/>• Test Data"]
     
@@ -135,12 +136,15 @@ graph TB
     
     Cache["⚡ Cache<br/>(Azure Cache for Redis)<br/>───<br/>• Session Data<br/>• Computed Results<br/>• Rate Limit State"]
     
+    Vault["🔐 Key Vault<br/>(Azure Key Vault)<br/>───<br/>• API Keys<br/>• Connection Credentials<br/>• Encryption Keys"]
+    
     ADOIntegration["🔗 ADO Integration<br/>(C#)<br/>Azure Functions<br/>───<br/>• Webhook Processor<br/>• Test Plan Sync<br/>• Result Reporter"]
     
     Monitor["📊 Monitoring<br/>(Azure Monitor +<br/>Application Insights)<br/>───<br/>• Logs<br/>• Metrics<br/>• Alerts<br/>• Audit Trail"]
     
     Web --> APIGateway
     Mobile --> APIGateway
+    Admin --> APIGateway
     
     APIGateway --> WebAPI
     APIGateway --> Cache
@@ -150,6 +154,7 @@ graph TB
     WebAPI --> ServiceBus
     WebAPI --> SqlDB
     WebAPI --> Cache
+    WebAPI --> Vault
     WebAPI --> Monitor
     
     SelEngine --> SqlDB
@@ -168,9 +173,11 @@ graph TB
     
     SqlDB --> Monitor
     Cache --> Monitor
+    Vault --> Monitor
     
     style Web fill:#e1f5ff
     style Mobile fill:#e1f5ff
+    style Admin fill:#fff3e0
     style APIGateway fill:#fff3e0
     style WebAPI fill:#f3e5f5
     style SelEngine fill:#e8f5e9
@@ -181,6 +188,7 @@ graph TB
     style SupabaseDB fill:#ffccbc
     style BlobStorage fill:#cfd8dc
     style Cache fill:#fff9c4
+    style Vault fill:#f8bbd0
     style ADOIntegration fill:#d1c4e9
     style Monitor fill:#b2dfdb
 ```
@@ -189,14 +197,16 @@ graph TB
 
 | Container | Technology | Purpose | Scaling |
 |-----------|-----------|---------|---------|
-| **Web Dashboard** | React 18 + TypeScript | User interface | Static, CDN-fronted |
+| **Web Dashboard** | React 18 + TypeScript | User interface (quality insights) | Static, CDN-fronted |
+| **Admin Portal** | React 18 + TypeScript | Project & integration config | Static, CDN-fronted |
 | **API Gateway** | Azure API Management | Request routing, auth, rate limiting | Managed, auto-scaling |
-| **Web API** | C# / .NET 7 | Core business logic | Azure App Service (B1→P1v2) |
-| **Functions** | C# / .NET 7 | Async processing | Pay-per-execution, 100% auto-scale |
-| **Database** | Azure SQL / Supabase | Persistent storage | Database unit scaling |
+| **Web API** | C# / .NET 7 | Core business logic + admin APIs | Azure App Service (B1→P1v2) |
+| **Functions** | C# / .NET 7 | Async processing, integrations | Pay-per-execution, 100% auto-scale |
+| **Database** | Azure SQL / Supabase | Persistent storage + multi-project config | Database unit scaling |
 | **Blob Storage** | Azure Blob | Large files, archives | Auto-scaling |
 | **Service Bus** | Azure Service Bus | Async messaging | Standard/Premium tiers |
 | **Cache** | Azure Cache for Redis | Session, computed results | C0→C6 scaling |
+| **Key Vault** | Azure Key Vault | Credentials, API keys (encrypted) | Managed, auto-scaling |
 | **Monitoring** | Azure Monitor + App Insights | Observability | Ingestion-based scaling |
 
 ---

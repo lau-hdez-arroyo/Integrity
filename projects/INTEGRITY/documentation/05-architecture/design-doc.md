@@ -416,7 +416,347 @@ public class DashboardService
 
 ---
 
-## 5. Audit & Compliance
+## 5. Administration & Configuration
+
+### Purpose
+Multi-project deployment with flexible integrations to any development toolchain.
+
+### 5.1 Admin Console (Web UI)
+
+**Technology:** React 18 + TypeScript  
+**Backend:** ASP.NET Core (AdminController)  
+**Responsibilities:**
+- Project creation and management
+- Integration connection setup
+- Credential/token management
+- Webhook configuration
+- Connection testing
+
+### 5.2 Connection Manager Service
+
+```csharp
+public class ConnectionManagerService
+{
+    private readonly IVaultService _vault;           // Azure Key Vault
+    private readonly IEncryptionService _encryption;
+    private readonly IConnectionFactory _factory;
+    
+    // Supported integrations
+    public enum ConnectionType
+    {
+        AzureDevOps,
+        SonarQube,
+        Datadog,
+        Slack,
+        GitHub,
+        GitLab,
+        Custom
+    }
+    
+    public async Task<Connection> CreateConnectionAsync(
+        string projectId,
+        ConnectionType type,
+        Dictionary<string, string> credentials)
+    {
+        // Validate connection parameters
+        ValidateConnectionParameters(type, credentials);
+        
+        // Encrypt sensitive data
+        var encrypted = await _encryption.EncryptAsync(
+            JsonConvert.SerializeObject(credentials));
+        
+        // Store in Key Vault
+        var secretName = $"integrity-{projectId}-{type}";
+        await _vault.SetSecretAsync(secretName, encrypted);
+        
+        // Test connection
+        var testResult = await TestConnectionAsync(type, credentials);
+        if (!testResult.IsSuccess)
+            throw new InvalidOperationException(
+                $"Connection failed: {testResult.ErrorMessage}");
+        
+        // Save connection metadata to database
+        var connection = new Connection
+        {
+            Id = Guid.NewGuid(),
+            ProjectId = projectId,
+            Type = type,
+            Status = "Active",
+            CreatedAt = DateTime.UtcNow,
+            LastTestedAt = DateTime.UtcNow,
+            VaultReference = secretName
+        };
+        
+        await _repository.AddConnectionAsync(connection);
+        return connection;
+    }
+    
+    public async Task<TestResult> TestConnectionAsync(
+        ConnectionType type,
+        Dictionary<string, string> credentials)
+    {
+        switch (type)
+        {
+            case ConnectionType.AzureDevOps:
+                return await TestADOConnectionAsync(credentials);
+            case ConnectionType.SonarQube:
+                return await TestSonarQubeConnectionAsync(credentials);
+            case ConnectionType.Datadog:
+                return await TestDatadogConnectionAsync(credentials);
+            case ConnectionType.Slack:
+                return await TestSlackConnectionAsync(credentials);
+            default:
+                throw new NotSupportedException($"Type {type} not supported");
+        }
+    }
+    
+    private async Task<TestResult> TestADOConnectionAsync(
+        Dictionary<string, string> credentials)
+    {
+        try
+        {
+            var orgUrl = credentials["OrganizationUrl"];
+            var pat = credentials["PersonalAccessToken"];
+            
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Basic", 
+                    Convert.ToBase64String(
+                        Encoding.ASCII.GetBytes($":{pat}")));
+            
+            var response = await client.GetAsync(
+                $"{orgUrl}/_apis/projects?api-version=7.0");
+            
+            if (!response.IsSuccessStatusCode)
+                return TestResult.Failure(
+                    $"ADO returned {response.StatusCode}");
+            
+            return TestResult.Success("Connected successfully");
+        }
+        catch (Exception ex)
+        {
+            return TestResult.Failure(ex.Message);
+        }
+    }
+    
+    private async Task<TestResult> TestSonarQubeConnectionAsync(
+        Dictionary<string, string> credentials)
+    {
+        try
+        {
+            var baseUrl = credentials["InstanceUrl"];
+            var token = credentials["ApiToken"];
+            
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Bearer", token);
+            
+            var response = await client.GetAsync(
+                $"{baseUrl}/api/ce/activity");
+            
+            if (!response.IsSuccessStatusCode)
+                return TestResult.Failure(
+                    $"SonarQube returned {response.StatusCode}");
+            
+            return TestResult.Success("Connected successfully");
+        }
+        catch (Exception ex)
+        {
+            return TestResult.Failure(ex.Message);
+        }
+    }
+}
+```
+
+### 5.3 Project Configuration Service
+
+```csharp
+public class ProjectConfigService
+{
+    private readonly IRepository _repository;
+    private readonly IConnectionManagerService _connectionManager;
+    
+    public async Task<Project> CreateProjectAsync(
+        string name,
+        string repositoryUrl,
+        string repositoryType) // "ADO" | "GitHub" | "GitLab"
+    {
+        var project = new Project
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            RepositoryUrl = repositoryUrl,
+            RepositoryType = repositoryType,
+            CreatedAt = DateTime.UtcNow,
+            Status = "Active"
+        };
+        
+        await _repository.AddProjectAsync(project);
+        return project;
+    }
+    
+    public async Task<ProjectMapping> SetIntegrationMappingAsync(
+        string projectId,
+        string integrationName,  // "SonarQube" | "Datadog" | "Slack"
+        Dictionary<string, string> mappingConfig)
+    {
+        var mapping = new ProjectMapping
+        {
+            Id = Guid.NewGuid(),
+            ProjectId = projectId,
+            IntegrationName = integrationName,
+            Config = JsonConvert.SerializeObject(mappingConfig),
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        await _repository.AddProjectMappingAsync(mapping);
+        return mapping;
+    }
+    
+    public async Task<IEnumerable<ProjectMapping>> GetProjectMappingsAsync(
+        string projectId)
+    {
+        return await _repository.GetProjectMappingsByProjectIdAsync(projectId);
+    }
+}
+```
+
+### 5.4 Multi-Project Data Isolation
+
+**Database Schema:**
+```sql
+-- Projects table
+CREATE TABLE Projects (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Name NVARCHAR(255) NOT NULL,
+    RepositoryUrl NVARCHAR(500) NOT NULL,
+    RepositoryType NVARCHAR(50),  -- "ADO", "GitHub", "GitLab"
+    TenantId UNIQUEIDENTIFIER NOT NULL,
+    CreatedAt DATETIME NOT NULL,
+    Status NVARCHAR(50)
+);
+
+-- Connections table
+CREATE TABLE Connections (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    ProjectId UNIQUEIDENTIFIER NOT NULL FOREIGN KEY,
+    Type NVARCHAR(50),  -- "AzureDevOps", "SonarQube", "Datadog", "Slack"
+    Status NVARCHAR(50),
+    VaultReference NVARCHAR(500),  -- Azure Key Vault secret name
+    CreatedAt DATETIME NOT NULL,
+    LastTestedAt DATETIME,
+    FOREIGN KEY (ProjectId) REFERENCES Projects(Id)
+);
+
+-- Project Mappings table
+CREATE TABLE ProjectMappings (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    ProjectId UNIQUEIDENTIFIER NOT NULL FOREIGN KEY,
+    IntegrationName NVARCHAR(100),  -- "SonarQube", "ADO", etc.
+    Config NVARCHAR(MAX),  -- JSON config (project keys, channel names, etc.)
+    CreatedAt DATETIME NOT NULL,
+    FOREIGN KEY (ProjectId) REFERENCES Projects(Id)
+);
+
+-- Data isolation: All queries filtered by ProjectId
+-- Example: SELECT * FROM HeatMaps WHERE ProjectId = @projectId
+```
+
+### 5.5 Integration Factory Pattern
+
+```csharp
+public interface IIntegrationAdapter
+{
+    Task<RepositoryInfo> GetRepositoryInfoAsync(string repositoryId);
+    Task<IEnumerable<Commit>> GetCommitsAsync(string branch, int count);
+    Task<IEnumerable<TestResult>> GetTestResultsAsync(string testSuiteId);
+}
+
+public class IntegrationFactory
+{
+    public IIntegrationAdapter CreateAdapter(
+        ConnectionType type,
+        Connection connection,
+        ProjectMapping mapping)
+    {
+        return type switch
+        {
+            ConnectionType.AzureDevOps => 
+                new AzureDevOpsAdapter(connection, mapping),
+            ConnectionType.GitHub => 
+                new GitHubAdapter(connection, mapping),
+            ConnectionType.GitLab => 
+                new GitLabAdapter(connection, mapping),
+            _ => throw new NotSupportedException($"Type {type} not supported")
+        };
+    }
+}
+
+// Adapter implementations handle integration-specific logic
+public class AzureDevOpsAdapter : IIntegrationAdapter
+{
+    private readonly string _orgUrl;
+    private readonly string _pat;
+    
+    public AzureDevOpsAdapter(Connection conn, ProjectMapping mapping)
+    {
+        var credentials = await DecryptCredentialsAsync(conn);
+        _orgUrl = credentials["OrganizationUrl"];
+        _pat = credentials["PersonalAccessToken"];
+    }
+    
+    public async Task<RepositoryInfo> GetRepositoryInfoAsync(
+        string repositoryId)
+    {
+        // ADO-specific implementation
+        // Uses Azure DevOps API v7.0+
+    }
+}
+```
+
+### 5.6 Webhook Management
+
+```csharp
+public class WebhookManagerService
+{
+    public async Task<Webhook> RegisterWebhookAsync(
+        string projectId,
+        WebhookEventType eventType)  // "Commit", "TestResult", "PullRequest"
+    {
+        var webhook = new Webhook
+        {
+            Id = Guid.NewGuid(),
+            ProjectId = projectId,
+            EventType = eventType,
+            Url = GenerateWebhookUrl(projectId, eventType),
+            Secret = GenerateSecurityToken(),
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        // Register webhook in external system (ADO, GitHub, etc.)
+        var connection = await _repository.GetPrimaryConnectionAsync(projectId);
+        var adapter = _factory.CreateAdapter(connection.Type, connection, null);
+        
+        await adapter.RegisterWebhookAsync(
+            webhook.Url,
+            webhook.Secret,
+            eventType);
+        
+        await _repository.AddWebhookAsync(webhook);
+        return webhook;
+    }
+    
+    private string GenerateWebhookUrl(string projectId, WebhookEventType type)
+    {
+        // Returns: https://integrity-api.azurewebsites.net/webhooks/{projectId}/{type}
+        return $"{_baseUrl}/webhooks/{projectId}/{type}";
+    }
+}
+```
+
+---
+
+## 6. Audit & Compliance
 
 ### Purpose
 Maintain immutable audit trail for SOX 404 compliance.
@@ -509,9 +849,9 @@ public class AuditService
 
 ---
 
-## 6. Integration with External Systems
+## 7. Integration with External Systems
 
-### 6.1 Azure DevOps Integration
+### 7.1 Azure DevOps Integration
 
 **Webhook Triggers:**
 ```
@@ -552,7 +892,7 @@ public async Task<IActionResult> HandleADOWebhookAsync([FromBody] ADOWebhookPayl
 }
 ```
 
-### 6.2 SonarQube Integration
+### 7.2 SonarQube Integration
 
 **Data Retrieval:**
 - Code coverage metrics
@@ -562,7 +902,7 @@ public async Task<IActionResult> HandleADOWebhookAsync([FromBody] ADOWebhookPayl
 
 **Sync Frequency:** Every 4 hours (aligned with heat map generation)
 
-### 6.3 Datadog Integration
+### 7.3 Datadog Integration
 
 **Metrics Sent:**
 - Test selection effectiveness

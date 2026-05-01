@@ -346,6 +346,77 @@ Azure Approval Gate Decision
 
 ---
 
+### 1.8 Administration & Configuration
+
+**Purpose:** Enable multi-project deployment with flexible integrations
+
+**Functional Requirements:**
+
+| ID | Requirement | Description | Priority |
+|----|-------------|-------------|----------|
+| FM-8.1 | Connection Management | Add/edit/test connections to external systems | HIGH |
+| FM-8.2 | Project Configuration | Create projects and map repositories | HIGH |
+| FM-8.3 | Integration Mappings | Define repository-to-integration mappings | HIGH |
+| FM-8.4 | API Key Management | Securely store and rotate API keys/credentials | HIGH |
+| FM-8.5 | Webhook Configuration | Setup and test webhooks for each integration | MEDIUM |
+| FM-8.6 | Connection Testing | Validate connection to external systems | MEDIUM |
+| FM-8.7 | Audit Log (Admin) | Track all configuration changes | MEDIUM |
+| FM-8.8 | Role-Based Access | Admin, Project Manager, Developer roles | MEDIUM |
+
+**Supported Integrations:**
+
+| Integration | Type | Required Fields | Optional Fields |
+|-----------|------|-----------------|-----------------|
+| **Azure DevOps** | Git + Test Mgmt | Organization URL, PAT Token | Project name, Repository name |
+| **SonarQube** | Code Quality | Instance URL, API Token | Project key, Custom metrics |
+| **Datadog** | Monitoring | API Key, App Key | Custom tags, Service name |
+| **Slack** | Notifications | Webhook URL, Channel | Username, Icon URL |
+| **GitHub** | Git (Alternative) | Access Token, Org Name | Repository pattern |
+| **GitLab** | Git (Alternative) | Personal Token, Instance URL | Group/project pattern |
+
+**Administration Console Features:**
+
+```
+┌─────────────────────────────────────────────┐
+│ INTEGRITY Admin Console                      │
+├─────────────────────────────────────────────┤
+│                                              │
+│ [Projects]  [Connections]  [Mappings]       │
+│                                              │
+│ ┌─ PROJECTS ─────────────────────────────┐ │
+│ │ • Create new project                   │ │
+│ │ • Select repository source (ADO/GH)    │ │
+│ │ • Configure integrations                │ │
+│ │ • Assign team members                   │ │
+│ └────────────────────────────────────────┘ │
+│                                              │
+│ ┌─ CONNECTIONS ──────────────────────────┐ │
+│ │ • ADO: org-url + PAT Token              │ │
+│ │ • SonarQube: url + API Token            │ │
+│ │ • Datadog: API Key + App Key            │ │
+│ │ • Slack: Webhook URL                    │ │
+│ │ [Test Connection] [Save] [Delete]       │ │
+│ └────────────────────────────────────────┘ │
+│                                              │
+│ ┌─ MAPPINGS ─────────────────────────────┐ │
+│ │ Project: INTEGRITY                      │ │
+│ │ Repository: integrity-core              │ │
+│ │ SonarQube Project Key: INTEGRITY:main   │ │
+│ │ ADO Team Project: INTEGRITY             │ │
+│ │ Slack Channel: #quality-alerts          │ │
+│ └────────────────────────────────────────┘ │
+│                                              │
+└─────────────────────────────────────────────┘
+```
+
+**Success Criteria:**
+- ✅ Add new project with integration in <5 minutes
+- ✅ Support minimum 5 different integration types
+- ✅ Connection validation success rate >99%
+- ✅ Admin UI load time <3 seconds
+
+---
+
 ## 2. Data Flows
 
 ### 2.1 Test Selection Data Flow
