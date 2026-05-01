@@ -1,14 +1,19 @@
-# INTEGRITY - Autonomous Quality Intelligence Ecosystem
+# INTEGRITY - Intelligent Test Selection & Risk Assessment Platform
 
-Project INTEGRITY is a strategic initiative designed to evolve the software testing paradigm from a reactive, manual-heavy process into an Autonomous Quality Intelligence Ecosystem. By shifting the focus from "test quantity" to "software integrity", INTEGRITY enables organizations to:
+**Refactored Architecture:** Node.js Backend + React Frontend (Monorepo)
 
-- 🎯 **Select optimal test sets** based on code changes and risk tolerance
-- 📊 **Assess defect escape risk** with ML-powered predictions  
-- 🔥 **Visualize code coverage** by module with heat maps
-- 💰 **Reduce test execution time** by 30-70% while maintaining quality
-- 📈 **Track quality metrics** via role-based dashboards
+A modern, cloud-native platform for intelligent test selection, heat map generation, and risk assessment to optimize QA workflows and accelerate software delivery.
 
-**Current Phase**: Phase 08 Development (Hybrid Approach - Core Services + Controllers)
+## 🎯 Overview
+
+INTEGRITY helps teams:
+- **Select optimal tests** based on code changes and risk tolerance
+- **Visualize risk** through intelligent heat maps
+- **Assess impact** of code changes before release
+- **Reduce cycle time** by eliminating unnecessary tests
+- **Improve quality** with data-driven testing decisions
+
+**Status**: Production-Ready Architecture | Node.js + React + Supabase
 
 ---
 

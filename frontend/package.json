@@ -1,0 +1,33 @@
+{
+  "name": "integrity-frontend",
+  "version": "1.0.0",
+  "description": "INTEGRITY - React + Vite frontend",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .jsx,.js",
+    "lint:fix": "eslint src --ext .jsx,.js --fix"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.19.0",
+    "@mui/material": "^5.14.13",
+    "@mui/icons-material": "^5.14.13",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.2",
+    "eslint": "^8.54.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-import": "^2.29.0"
+  }
+}
