@@ -1,18 +1,29 @@
 import { Outlet } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Container } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import Navigation from './Navigation';
 
 export default function Layout() {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <h1 style={{ margin: 0 }}>INTEGRITY</h1>
-        </Toolbar>
-      </AppBar>
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-      <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
+  return (
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+      {/* Navigation */}
+      <Navigation />
+
+      {/* Main Content */}
+      <Box
+        sx={{
+          flex: 1,
+          marginLeft: { xs: 0, md: '280px' },
+          marginTop: '64px',
+          padding: { xs: '16px', sm: '24px', md: '32px' },
+          overflowY: 'auto',
+        }}
+      >
         <Outlet />
-      </Container>
+      </Box>
     </Box>
   );
 }
