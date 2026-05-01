@@ -12,14 +12,12 @@ Project INTEGRITY is a strategic initiative designed to evolve the software test
 
 ---
 
-## 🚀 Quick Start - Run Locally in 5 Minutes
+## 🚀 Quick Start - Choose Your Environment
 
-### Prerequisites
-- Docker Desktop (or Docker Engine + Docker Compose)
-- .NET 7 SDK or runtime
-- Windows PowerShell
+### 3 Formas de Ejecutar INTEGRITY
 
-### One-Command Setup
+#### 1️⃣ Local (Recomendado para desarrollo)
+**Requisitos**: Docker Desktop, .NET 7 SDK, PowerShell
 
 ```powershell
 # Navigate to project root
@@ -31,6 +29,59 @@ cd c:\Repos\Integrity\Integrity
 # In another terminal, start API
 .\setup.ps1 -Command api
 ```
+
+✅ **Ventajas**: Rápido, sin internet requerido, gratuito
+- PostgreSQL 15 en Docker (localhost:5432)
+- Redis 7 en Docker (localhost:6379)
+- API en http://localhost:5000
+
+---
+
+#### 2️⃣ Supabase Cloud (Recomendado para demo/producción)
+**Requisitos**: Cuenta Supabase gratis, .NET 7 SDK
+
+**¿Por qué Supabase?**
+- ✅ Base de datos en la nube
+- ✅ Accesible desde cualquier lugar
+- ✅ Escalable automáticamente
+- ✅ Backups automáticos
+- ✅ SSL/TLS seguro
+- ✅ Plan gratuito generoso
+
+**Setup rápido (5 minutos)**:
+```powershell
+# 1. Crea proyecto en https://app.supabase.com
+# 2. Copia credenciales (Host, Password)
+# 3. Ejecuta init-db.sql en Supabase SQL Editor
+# 4. Guarda credenciales en User Secrets:
+
+cd projects/INTEGRITY/src/INTEGRITY.API
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
+  "Host=db.xxxxx.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=tucontraseña;SSL Mode=Require"
+
+# 5. Ejecuta API:
+dotnet run --environment Supabase.Production
+```
+
+📚 **Guía completa**: [SUPABASE_CLOUD.md](SUPABASE_CLOUD.md)  
+⚡ **Setup rápido**: [SUPABASE_CLOUD_QUICK.md](SUPABASE_CLOUD_QUICK.md)
+
+---
+
+#### 3️⃣ Full Cloud (API + BD en Azure/Supabase)
+**Para producción**: Desplega API a Azure App Service + Supabase Cloud
+
+---
+
+### Comparación Rápida
+
+| Aspecto | Local Docker | Supabase Cloud | Full Cloud |
+|--------|--------------|---|---|
+| **Setup** | 5 min | 5 min | 15 min |
+| **Costo** | $0 | Free/$25 | $$$ |
+| **Accesibilidad** | localhost solo | Global ✅ | Global ✅ |
+| **Ideal para** | Desarrollo | Demo/Prod | Producción |
+| **Escalabilidad** | Limitada | Automática | Automática |
 
 **That's it!** You now have:
 - ✅ PostgreSQL database running (localhost:5432)
@@ -85,7 +136,9 @@ Go to http://localhost:5000/swagger and try:
 
 ### Getting Started
 - **[README_DEMO.md](README_DEMO.md)** - Quick reference (1 page)
-- **[DEMO_SETUP.md](DEMO_SETUP.md)** - Detailed setup guide (comprehensive)
+- **[DEMO_SETUP.md](DEMO_SETUP.md)** - Detailed local setup guide
+- **[SUPABASE_CLOUD_QUICK.md](SUPABASE_CLOUD_QUICK.md)** - Supabase Cloud setup (5 min)
+- **[SUPABASE_CLOUD.md](SUPABASE_CLOUD.md)** - Complete Supabase Cloud guide
 
 ### API & Backend
 - **[projects/INTEGRITY/src/INTEGRITY.API/README.md](projects/INTEGRITY/src/INTEGRITY.API/README.md)** - API architecture and endpoints
@@ -146,7 +199,62 @@ Health Check
 
 ---
 
-## 🗄️ Local Database Setup
+## 🌐 Deployment Options
+
+The INTEGRITY API can run in any of these configurations:
+
+### 1. Local Development (Docker Compose)
+```
+Your Computer
+├── PostgreSQL 15 (Docker)
+├── Redis 7 (Docker)
+├── pgAdmin (Docker)
+└── .NET 7 API (local process)
+```
+- **Run**: `.\setup.ps1 -Command full`
+- **Cost**: $0
+- **Latency**: <1ms
+- **Use Case**: Development, local testing
+
+### 2. Supabase Cloud + Local API
+```
+Supabase Cloud (PostgreSQL + Auth)
+    ↓ Connection String
+Your Computer (.NET 7 API)
+```
+- **Run**: `dotnet run --environment Supabase.Production`
+- **Cost**: Free-$25/month
+- **Latency**: 50-200ms (depends on region)
+- **Use Case**: Demo, shared development
+
+### 3. Full Cloud (Azure App Service + Supabase)
+```
+Azure App Service (.NET 7 API)
+    ↓
+Supabase Cloud (PostgreSQL)
+```
+- **Cost**: $15-100+/month
+- **Latency**: Optimized by region
+- **Use Case**: Production, public access
+
+---
+
+### How to Switch Environments
+
+```powershell
+# Local development (Docker)
+.\setup.ps1 -Command api
+
+# Supabase Cloud (with .NET SDK)
+$env:ASPNETCORE_ENVIRONMENT="Supabase.Production"
+dotnet run -p projects/INTEGRITY/src/INTEGRITY.API
+
+# Azure App Service (after deployment)
+# - Environment variable set in Azure Portal
+# - Connection string from Key Vault
+```
+
+---
 
 ### Docker Containers
 - **PostgreSQL 15 Alpine** (port 5432)
@@ -187,7 +295,8 @@ All tables support multi-tenant isolation via `project_id` foreign key.
 
 ## 🔧 Development Workflow
 
-### 1. Local Development
+### Local Development Setup
+
 ```powershell
 # Start everything
 .\setup.ps1 -Command full
@@ -199,7 +308,26 @@ All tables support multi-tenant isolation via `project_id` foreign key.
 # Redis on localhost:6379
 ```
 
-### 2. Database Changes (EF Core)
+### Migrating from Local to Supabase Cloud
+
+```powershell
+# 1. Create Supabase project: https://app.supabase.com
+
+# 2. Run init-db.sql in Supabase SQL Editor
+#    (Creates schema and demo data)
+
+# 3. Save credentials in User Secrets:
+cd projects/INTEGRITY/src/INTEGRITY.API
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=xxx;..."
+
+# 4. Switch environment variable:
+$env:ASPNETCORE_ENVIRONMENT="Supabase.Production"
+dotnet run
+
+# ✅ Now using Supabase Cloud!
+```
+
+---
 ```powershell
 cd projects/INTEGRITY/src/INTEGRITY.API
 
