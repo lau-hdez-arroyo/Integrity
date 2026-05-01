@@ -2,24 +2,15 @@
 -- Creates database schema with Supabase compatibility
 -- Run this on first PostgreSQL container startup
 
--- Create extensions (Supabase includes these)
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- NOTE: Supabase uses gen_random_uuid() instead of uuid_generate_v4()
+-- Both functions do the same thing - generate random UUIDs
 
--- Create application database
-CREATE DATABASE integrity_demo
-    WITH 
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'C'
-    LC_CTYPE = 'C'
-    TEMPLATE = template0;
+-- For LOCAL Docker: Uncomment these extensions
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Connect to the database
-\c integrity_demo
-
--- Enable extensions in the application database
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- For SUPABASE CLOUD: Extensions are already enabled
+-- (pgcrypto and uuid-ossp are available by default)
 
 -- Create schema for INTEGRITY application
 CREATE SCHEMA IF NOT EXISTS integrity;
@@ -39,7 +30,7 @@ DROP TABLE IF EXISTS users CASCADE;
 
 -- Users table
 CREATE TABLE users (
-    user_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL,
     email VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('Admin', 'PM', 'Developer', 'QA', 'Executive')),
@@ -53,7 +44,7 @@ CREATE INDEX idx_users_project_id ON users (project_id);
 
 -- Projects table
 CREATE TABLE projects (
-    project_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    project_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     repository_url VARCHAR(500),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
@@ -62,7 +53,7 @@ CREATE TABLE projects (
 
 -- Connections table
 CREATE TABLE connections (
-    connection_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    connection_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     integration_type VARCHAR(50) NOT NULL,
     encrypted_credentials TEXT NOT NULL,
@@ -76,7 +67,7 @@ CREATE INDEX idx_connections_project_type ON connections (project_id, integratio
 
 -- Project Members table
 CREATE TABLE project_members (
-    member_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    member_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     role VARCHAR(50) NOT NULL,
@@ -88,7 +79,7 @@ CREATE INDEX idx_project_members_user_id ON project_members (user_id);
 
 -- Integration Mappings table
 CREATE TABLE integration_mappings (
-    mapping_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    mapping_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     connection_id UUID NOT NULL REFERENCES connections(connection_id) ON DELETE CASCADE,
     repository_key VARCHAR(255) NOT NULL,
@@ -101,7 +92,7 @@ CREATE INDEX idx_integration_mappings_connection_id ON integration_mappings (con
 
 -- Heat Maps table
 CREATE TABLE heat_maps (
-    heat_map_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    heat_map_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     repository_branch_id VARCHAR(255),
     coverage_percentage NUMERIC(5, 2),
@@ -115,7 +106,7 @@ CREATE INDEX idx_heat_maps_project_generated ON heat_maps (project_id, generated
 
 -- Test Executions table
 CREATE TABLE test_executions (
-    execution_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    execution_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     test_suite_id VARCHAR(255) NOT NULL,
     status VARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'RUNNING', 'PASSED', 'FAILED')),
@@ -130,7 +121,7 @@ CREATE INDEX idx_test_executions_project_time ON test_executions (project_id, st
 
 -- Risk Assessments table
 CREATE TABLE risk_assessments (
-    risk_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    risk_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     change_id VARCHAR(255) NOT NULL,
     risk_score NUMERIC(3, 1),
@@ -144,7 +135,7 @@ CREATE INDEX idx_risk_assessments_project_created ON risk_assessments (project_i
 
 -- Audit Logs table (immutable for compliance)
 CREATE TABLE audit_logs (
-    audit_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    audit_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     action VARCHAR(100) NOT NULL,
@@ -163,7 +154,7 @@ CREATE INDEX idx_audit_logs_user_id ON audit_logs (user_id);
 
 -- Admin Logs table
 CREATE TABLE admin_logs (
-    log_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    log_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     admin_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     config_change_type VARCHAR(50) NOT NULL,
