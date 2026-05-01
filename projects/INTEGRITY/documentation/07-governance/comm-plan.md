@@ -118,11 +118,11 @@ This Communication Plan establishes how Project INTEGRITY will maintain transpar
 
 | Channel | Content | Frequency | Owner | Timing |
 |---------|---------|-----------|-------|--------|
-| **Monthly Executive Review** | Business progress, ROI impact, risks | Monthly (1st Fri) | Program Manager | 30 min meeting |
-| **Weekly Steering Committee** | Status, decisions, escalations | Weekly (Tue 10 AM) | Program Manager | 60 min meeting |
-| **Executive Dashboard** | Real-time: schedule %, budget %, KPIs | Daily | Program Manager | Auto-refresh |
-| **Incident Reports** | Critical issues requiring immediate attention | As needed | Tech Lead | Within 1 hour |
-| **Monthly Financial Report** | Budget vs. actual, forecast, burn rate | Monthly (5th day) | Finance | Email + meeting |
+| **Executive Review** | Business progress, ROI impact, risks | [Frequency] | [Program Manager] | [Duration] |
+| **Steering Committee** | Status, decisions, escalations | [Frequency] | [Program Manager] | [Duration] |
+| **Executive Dashboard** | Real-time: schedule %, budget %, KPIs | Daily | [Program Manager] | Auto-refresh |
+| **Incident Reports** | Critical issues requiring immediate attention | As needed | [Tech Lead] | Within 1 hour |
+| **Financial Report** | Budget vs. actual, forecast, burn rate | [Frequency] | [Finance] | [Duration] |
 
 **Message Themes:**
 - Business value realization
@@ -136,16 +136,16 @@ This Communication Plan establishes how Project INTEGRITY will maintain transpar
 
 ### Project Management Team
 
-**Audience:** Program Manager, Product Owner, Steering Committee, Legal/Compliance
+**Audience:** [Project Management Team]
 
 | Channel | Content | Frequency | Owner | Timing |
 |---------|---------|-----------|-------|--------|
-| **Weekly Steering Committee** | Status, risks, decisions, forecasts | Weekly (Tue 10 AM) | Program Manager | 60 min |
-| **Sprint Review & Planning** | Demo, retrospective, planning | Weekly (Fri 2 PM) | Tech Lead | 60 min |
-| **Project Dashboard** | Burndown, velocity, blocked tasks | Daily | Program Manager | Auto-update |
-| **Risk Register Updates** | New risks, escalations, mitigations | Weekly | Program Manager | Email summary |
-| **Change Control Board** | Scope changes, impact analysis | As needed (24h notice) | Product Owner | Dedicated meeting |
-| **Phase Gate Reviews** | Phase completion, sign-off, unlock | End of phase | Tech Lead | Formal review |
+| **Steering Committee** | Status, risks, decisions, forecasts | [Frequency] | [Program Manager] | [Duration] |
+| **Sprint Review & Planning** | Demo, retrospective, planning | [Frequency] | [Tech Lead] | [Duration] |
+| **Project Dashboard** | Burndown, velocity, blocked tasks | Daily | [Program Manager] | Auto-update |
+| **Risk Register Updates** | New risks, escalations, mitigations | [Frequency] | [Program Manager] | [Duration] |
+| **Change Control Board** | Scope changes, impact analysis | As needed | [Product Owner] | [Duration] |
+| **Phase Gate Reviews** | Phase completion, sign-off, unlock | End of phase | [Tech Lead] | [Duration] |
 
 **Message Themes:**
 - Schedule variance & corrective actions
@@ -159,17 +159,17 @@ This Communication Plan establishes how Project INTEGRITY will maintain transpar
 
 ### Core Project Team
 
-**Audience:** 5-person development team + QA + DevOps
+**Audience:** [Core Development Team]
 
 | Channel | Content | Frequency | Owner | Timing |
 |---------|---------|-----------|-------|--------|
-| **Daily Standup** | Status, blockers, coordination | 9 AM UTC daily | Tech Lead | 15 min (standing) |
-| **Weekly Sprint Review** | Demo, retrospective, planning | Fri 2 PM UTC | Tech Lead | 60 min |
-| **Slack/Teams Chat** | Real-time coordination, quick questions | Ad-hoc | All | Throughout day |
-| **Technical Architecture Sessions** | Design reviews, implementation patterns | Bi-weekly | David Kozlov | 90 min |
-| **Code Review Comments** | Feedback, standards, improvements | Per PR | Team members | During PR review |
-| **Sprint Retrospective** | What went well, improve, action items | Weekly (Fri 2:30 PM) | Tech Lead | 30 min |
-| **1-on-1 Sync** | Individual progress, career growth | Bi-weekly | David Kozlov | 30 min |
+| **Daily Standup** | Status, blockers, coordination | Daily | [Tech Lead] | [Duration] |
+| **Sprint Review** | Demo, retrospective, planning | [Frequency] | [Tech Lead] | [Duration] |
+| **Chat/IM** | Real-time coordination, quick questions | Ad-hoc | All | Throughout day |
+| **Architecture Sessions** | Design reviews, implementation patterns | [Frequency] | [Tech Lead] | [Duration] |
+| **Code Review** | Feedback, standards, improvements | Per PR | Team members | During PR review |
+| **Retrospective** | What went well, improve, action items | [Frequency] | [Tech Lead] | [Duration] |
+| **1-on-1 Sync** | Individual progress, career growth | [Frequency] | [Team Lead] | [Duration] |
 
 **Message Themes:**
 - Technical details & implementation progress
@@ -187,11 +187,11 @@ This Communication Plan establishes how Project INTEGRITY will maintain transpar
 
 | Channel | Content | Frequency | Owner | Timing |
 |---------|---------|-----------|-------|--------|
-| **Security Review Meetings** | Threat model, compliance, vulnerabilities | Bi-weekly | Angela Martinez | 90 min |
-| **QA Coordination Meetings** | Test readiness, UAT planning, blockers | Weekly (when QA phase active) | Marcus Johnson | 60 min |
-| **Finance Status Report** | Budget tracking, invoices, forecast | Monthly (5th day) | Robert Kim | Email |
-| **Legal/Compliance Review** | Licensing, data agreements, SOX audit | Monthly | James Wilson | Email + meeting |
-| **HR Resource Updates** | Team availability, vacation planning | Bi-weekly | Lisa Wong | Email + standup |
+| **Security Review Meetings** | Threat model, compliance, vulnerabilities | [Frequency] | [Security Officer] | [Duration] |
+| **QA Coordination Meetings** | Test readiness, UAT planning, blockers | [Frequency] | [QA Lead] | [Duration] |
+| **Finance Status Report** | Budget tracking, invoices, forecast | [Frequency] | [Finance Manager] | [Duration] |
+| **Legal/Compliance Review** | Licensing, data agreements, compliance | [Frequency] | [Legal Counsel] | [Duration] |
+| **HR Resource Updates** | Team availability, vacation planning | [Frequency] | [HR Manager] | [Duration] |
 
 **Message Themes:**
 - Project status summary
@@ -209,11 +209,11 @@ This Communication Plan establishes how Project INTEGRITY will maintain transpar
 | Channel | Content | Frequency | Owner | Timing |
 |---------|---------|-----------|-------|--------|
 | **Monthly Newsletter** | Feature progress, adoption tips, upcoming | Monthly | Program Manager | Email |
-| **Lunch & Learn Sessions** | Dashboard walkthrough, hands-on demo | Monthly (Jun-Aug) | James Park | 60 min + lunch |
-| **Launch Preparation (Jul-Aug)** | Training materials, runbooks, FAQ | Weekly | Marcus Johnson | Email + portal |
-| **Go-Live Announcement** | Launch date, access instructions, support | 2 weeks pre-launch | Patricia Winters | Email + teams |
-| **Post-Launch Check-in** | Feedback survey, quick wins, support | 1 week post-launch | Michael Torres | Email survey |
-| **IT Operations Runbook** | Deployment, troubleshooting, escalation | Delivered 1 week pre-launch | Priya Sharma | Confluence doc |
+| **Lunch & Learn Sessions** | Dashboard walkthrough, hands-on demo | [Frequency] | [Team Lead] | [Duration] |
+| **Launch Preparation** | Training materials, runbooks, FAQ | [Frequency] | [QA Lead] | [Duration] |
+| **Go-Live Announcement** | Launch date, access instructions, support | [Timing] | [Executive] | [Channel] |
+| **Post-Launch Check-in** | Feedback survey, quick wins, support | [Timing] | [Product Owner] | [Duration] |
+| **Operations Runbook** | Deployment, troubleshooting, escalation | [Timing] | [DevOps Lead] | [Format] |
 
 **Message Themes:**
 - Feature capabilities & benefits
@@ -552,41 +552,41 @@ Questions:
 
 ```
 EXECUTIVE LEADERSHIP
-Patricia Winters (CEO, Sponsor)        pwinters@arroyo.com      (555) 123-4567
-Dr. Sarah Chen (CTO)                   schen@arroyo.com         (555) 234-5678
+[Executive Sponsor]                    [email]                  [phone]
+[CTO]                                  [email]                  [phone]
 
 PROJECT MANAGEMENT
-Robert Chen, PMP (Program Manager)     rchen@arroyo.com         (555) 345-6789
-Michael Torres (Product Owner)         mtorres@arroyo.com       (555) 456-7890
+[Program Manager]                      [email]                  [phone]
+[Product Owner]                        [email]                  [phone]
 
 CORE TEAM
-David Kozlov (Tech Lead)               dkozlov@arroyo.com       (555) 567-8901
-Emily Rodriguez (Backend Lead)         erodriguez@arroyo.com    (555) 678-9012
-James Park (Frontend Lead)             jpark@arroyo.com         (555) 789-0123
-Priya Sharma (DevOps)                  psharma@arroyo.com       (555) 890-1234
-Marcus Johnson (QA)                    mjohnson@arroyo.com      (555) 901-2345
+[Tech Lead]                            [email]                  [phone]
+[Backend Lead]                         [email]                  [phone]
+[Frontend Lead]                        [email]                  [phone]
+[DevOps Engineer]                      [email]                  [phone]
+[QA Lead]                              [email]                  [phone]
 
 SUPPORT & EXTENDED
-Angela Martinez (Security)             amartinez@arroyo.com     (555) 012-3456
-Robert Kim (Finance)                   rkim@arroyo.com          (555) 123-4567
-Lisa Wong (HR)                         lwong@arroyo.com         (555) 234-5678
-James Wilson (Legal)                   jwilson@arroyo.com       (555) 345-6789
+[Security Officer]                     [email]                  [phone]
+[Finance Manager]                      [email]                  [phone]
+[HR Manager]                           [email]                  [phone]
+[Legal Counsel]                        [email]                  [phone]
 
-PROJECT EMAIL
-integrity-team@arroyo.com              General team messages
-integrity-alerts@arroyo.com            System alerts & issues
+PROJECT COMMUNICATION
+[team-email@company.com]               General team messages
+[alerts@company.com]                   System alerts & issues
 ```
 
 ### B. Slack Channels
 
 | Channel | Purpose | Members | Default |
 |---------|---------|---------|---------|
-| #integrity-team | Project updates & coordination | All 20 | Daily |
-| #integrity-dev | Development technical discussion | Dev team (5) | Daily |
-| #integrity-alerts | System alerts & monitoring | Ops + Dev | Monitor |
-| #integrity-qa | QA & testing coordination | QA team | During QA phase |
-| #integrity-executive | Leadership updates | Execs (3) | Weekly |
-| #integrity-random | Team building & casual chat | All 20 | Ad-hoc |
+| #project-team | Project updates & coordination | All team | Daily |
+| #project-dev | Development technical discussion | Dev team | Daily |
+| #project-alerts | System alerts & monitoring | Ops + Dev | Monitor |
+| #project-qa | QA & testing coordination | QA team | During QA phase |
+| #project-exec | Leadership updates | Leadership | [Frequency] |
+| #project-social | Team building & casual chat | All team | Ad-hoc |
 
 ### C. Document Retention
 
