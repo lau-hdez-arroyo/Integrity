@@ -12,9 +12,8 @@
 -- For SUPABASE CLOUD: Extensions are already enabled
 -- (pgcrypto and uuid-ossp are available by default)
 
--- Create schema for INTEGRITY application
-CREATE SCHEMA IF NOT EXISTS integrity;
-SET search_path TO integrity, public;
+-- NOTE: Creating tables in public schema (default for Supabase)
+-- This ensures tables are visible in Supabase Table Editor
 
 -- Drop existing tables if they exist (for clean startup)
 DROP TABLE IF EXISTS admin_logs CASCADE;
@@ -199,7 +198,5 @@ VALUES (
     now()
 );
 
--- Grant permissions
-GRANT ALL PRIVILEGES ON SCHEMA integrity TO postgres;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA integrity TO postgres;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA integrity TO postgres;
+-- Tables are now created in public schema (visible in Supabase Table Editor)
+-- All permissions are inherited from public schema
