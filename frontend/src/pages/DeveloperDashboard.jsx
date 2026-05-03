@@ -29,7 +29,7 @@ export default function DeveloperDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/v1/dashboard/developer/${projectId}`);
+      const response = await api.get(`/dashboard/developer/${projectId}`);
       setData(response.data.data);
     } catch (err) {
       setError(err.message || 'Failed to load dashboard data');

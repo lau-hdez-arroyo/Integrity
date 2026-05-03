@@ -16,9 +16,10 @@ import heatMapRoutes from './routes/heatmaps.js';
 import testSelectionRoutes from './routes/testSelection.js';
 import riskAssessmentRoutes from './routes/riskAssessment.js';
 import dashboardRoutes from './routes/dashboard.js';
+import adminRoutes from './routes/admin.js';
 
 // Configuration
-dotenv.config();
+dotenv.config({ path: '.env.local' });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -35,6 +36,9 @@ app.use(requestLogger);
 // Health check route (NO AUTH REQUIRED)
 app.use('/health', healthRoutes);
 app.use('/api/v1/health', healthRoutes);
+
+// Admin routes (NO AUTH REQUIRED for now - for development)
+app.use('/api/v1/admin', adminRoutes);
 
 // Protected routes (AUTH REQUIRED)
 app.use('/api/v1/projects', authMiddleware, projectRoutes);

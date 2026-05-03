@@ -30,7 +30,7 @@ export default function QADashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/v1/dashboard/qa/${projectId}`);
+      const response = await api.get(`/dashboard/qa/${projectId}`);
       setData(response.data.data);
     } catch (err) {
       setError(err.message || 'Failed to load dashboard data');

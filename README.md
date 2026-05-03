@@ -1,138 +1,367 @@
-# INTEGRITY - Intelligent Test Selection & Risk Assessment Platform
+# 🚀 INTEGRITY - Intelligent Test Selection & Risk Assessment Platform
 
-**Refactored Architecture:** Node.js Backend + React Frontend (Monorepo)
-
-A modern, cloud-native platform for intelligent test selection, heat map generation, and risk assessment to optimize QA workflows and accelerate software delivery.
-
-## 🎯 Overview
-
-INTEGRITY helps teams:
-- **Select optimal tests** based on code changes and risk tolerance
-- **Visualize risk** through intelligent heat maps
-- **Assess impact** of code changes before release
-- **Reduce cycle time** by eliminating unnecessary tests
-- **Improve quality** with data-driven testing decisions
-
-**Status**: Production-Ready Architecture | Node.js + React + Supabase
+**Modern Stack:** Node.js + Express Backend | React 18 Frontend | Supabase PostgreSQL  
+**Architecture:** Full-Stack Monorepo with Intelligent Dashboards & Heat Maps  
+**Status:** ✅ Production-Ready | Fully Integrated | Ready for Data Import
 
 ---
 
-## 🚀 Quick Start - Choose Your Environment
+## 🎯 What is INTEGRITY?
 
-### 3 Formas de Ejecutar INTEGRITY
+INTEGRITY is an intelligent test selection and risk assessment platform that helps QA teams:
 
-#### 1️⃣ Local (Recomendado para desarrollo)
-**Requisitos**: Docker Desktop, .NET 7 SDK, PowerShell
+- 🎯 **Select optimal tests** based on code changes and risk factors
+- 🗺️ **Visualize risk** through intelligent heat maps by module
+- 📊 **Assess impact** of code changes before release
+- ⏱️ **Reduce cycle time** by eliminating unnecessary tests
+- ✨ **Improve quality** with data-driven testing decisions
+- 📈 **Track velocity** and test execution trends
 
-```powershell
-# Navigate to project root
-cd c:\Repos\Integrity\Integrity
+---
 
-# Full setup (starts Docker + API)
-.\setup.ps1 -Command full
+## 🚀 Quick Start
 
-# In another terminal, start API
-.\setup.ps1 -Command api
+### ✅ Prerequisites
+- Node.js v18+ (check: `node --version`)
+- npm v9+ (check: `npm --version`)
+- Git
+
+### ⚡ Run INTEGRITY (3 Steps)
+
+#### **Step 1: Install Dependencies**
+```bash
+cd C:\Repos\Integrity\Integrity
+npm install
 ```
 
-✅ **Ventajas**: Rápido, sin internet requerido, gratuito
-- PostgreSQL 15 en Docker (localhost:5432)
-- Redis 7 en Docker (localhost:6379)
-- API en http://localhost:5000
-
----
-
-#### 2️⃣ Supabase Cloud (Recomendado para demo/producción)
-**Requisitos**: Cuenta Supabase gratis, .NET 7 SDK
-
-**¿Por qué Supabase?**
-- ✅ Base de datos en la nube
-- ✅ Accesible desde cualquier lugar
-- ✅ Escalable automáticamente
-- ✅ Backups automáticos
-- ✅ SSL/TLS seguro
-- ✅ Plan gratuito generoso
-
-**Setup rápido (5 minutos)**:
-```powershell
-# 1. Crea proyecto en https://app.supabase.com
-# 2. Copia credenciales (Host, Password)
-# 3. Ejecuta init-db.sql en Supabase SQL Editor
-# 4. Guarda credenciales en User Secrets:
-
-cd projects/INTEGRITY/src/INTEGRITY.API
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
-  "Host=db.xxxxx.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=tucontraseña;SSL Mode=Require"
-
-# 5. Ejecuta API:
-dotnet run --environment Supabase.Production
+#### **Step 2: Start Dev Servers**
+```bash
+npm run dev
 ```
 
-📚 **Guía completa**: [SUPABASE_CLOUD.md](SUPABASE_CLOUD.md)  
-⚡ **Setup rápido**: [SUPABASE_CLOUD_QUICK.md](SUPABASE_CLOUD_QUICK.md)
+This starts **both servers concurrently**:
+- 🔷 **Backend**: http://localhost:5000
+- 🔷 **Frontend**: http://localhost:5175
+
+**Output should show:**
+```
+[backend] ✅ Server listening on port 5000
+[frontend] ✅ Local: http://localhost:5175
+```
+
+#### **Step 3: Open in Browser**
+```
+http://localhost:5175
+```
+
+✅ **That's it!** You now have INTEGRITY running locally.
 
 ---
 
-#### 3️⃣ Full Cloud (API + BD en Azure/Supabase)
-**Para producción**: Desplega API a Azure App Service + Supabase Cloud
+### 📊 Access the App
+
+| Component | URL | Purpose |
+|-----------|-----|---------|
+| **Frontend** | http://localhost:5175 | Main dashboard & UI |
+| **Backend Health** | http://localhost:5000/health | API status check |
+| **API Docs** | See `docs/API_REFERENCE.md` | API endpoints |
 
 ---
 
-### Comparación Rápida
+## 📥 Import Test Data
 
-| Aspecto | Local Docker | Supabase Cloud | Full Cloud |
-|--------|--------------|---|---|
-| **Setup** | 5 min | 5 min | 15 min |
-| **Costo** | $0 | Free/$25 | $$$ |
-| **Accesibilidad** | localhost solo | Global ✅ | Global ✅ |
-| **Ideal para** | Desarrollo | Demo/Prod | Producción |
-| **Escalabilidad** | Limitada | Automática | Automática |
+Your app is ready but needs data. Follow these steps:
 
-**That's it!** You now have:
-- ✅ PostgreSQL database running (localhost:5432)
-- ✅ Redis cache running (localhost:6379)
-- ✅ API Swagger UI (http://localhost:5000/swagger)
-- ✅ Database admin panel (http://localhost:5050)
+### **Option 1: Quick Test (2 min)**
 
-### Access Your Demo
+Use the provided minimal example:
 
-| Component | URL | Credentials |
-|-----------|-----|-------------|
-| **API Swagger** | http://localhost:5000/swagger | No auth (demo) |
-| **API Health** | http://localhost:5000/api/v1/health | - |
-| **pgAdmin** | http://localhost:5050 | admin@demo.local / admin |
+```bash
+cd C:\Repos\Integrity\Integrity
 
-### Test an Endpoint
+# Create a minimal seed file
+echo @'
+{
+  "users": [
+    {"email": "admin@test.com", "name": "Admin", "role": "admin"},
+    {"email": "qa@test.com", "name": "QA Lead", "role": "qa"}
+  ],
+  "projects": [
+    {
+      "name": "Test Project",
+      "description": "Demo project",
+      "repo": "https://github.com/test/project",
+      "created_by_email": "admin@test.com"
+    }
+  ],
+  "project_members": [
+    {"project_name": "Test Project", "user_email": "qa@test.com", "role": "qa_lead"}
+  ],
+  "heat_maps": [
+    {"project_name": "Test Project", "module_name": "API", "coverage_percentage": 85, "risk_level": "medium"},
+    {"project_name": "Test Project", "module_name": "Auth", "coverage_percentage": 95, "risk_level": "low"}
+  ],
+  "test_executions": [
+    {
+      "project_name": "Test Project",
+      "total_tests": 100,
+      "passed_tests": 90,
+      "failed_tests": 5,
+      "skipped_tests": 5,
+      "coverage_percentage": 88,
+      "execution_time_seconds": 60,
+      "status": "completed"
+    }
+  ],
+  "risk_assessments": [
+    {
+      "project_name": "Test Project",
+      "risk_score": 4.5,
+      "risk_level": "medium",
+      "identified_risks": ["Low API coverage", "Flaky tests"],
+      "recommendations": ["Add more tests", "Fix flaky tests"]
+    }
+  ]
+}
+'@ | Out-File seed-data.json -Encoding UTF8
 
-Go to http://localhost:5000/swagger and try:
+# Import it
+npm run import-data
 
-1. **POST** `/api/v1/heatmap/generate`
-   - Project ID: `550e8400-e29b-41d4-a716-446655440000`
-   - Returns: Coverage heat map with modules
+# Check output - should show:
+# ✓ Imported 2 users
+# ✓ Imported 1 projects
+# ... etc
+# ✅ IMPORT COMPLETE
+```
 
-2. **GET** `/api/v1/dashboard/executive`
-   - Returns: Executive KPIs (quality, velocity, savings)
+After import, refresh http://localhost:5175 to see data!
 
-3. **GET** `/api/v1/health`
-   - Returns: Service status
+---
 
-### Common Commands
+### **Option 2: Import Your Own Data (10-15 min)** ⭐ **RECOMMENDED**
 
-```powershell
-# Stop all Docker containers
-.\setup.ps1 -Command stop
+You have other apps with test data? Extract and import them!
 
-# Restart infrastructure
-.\setup.ps1 -Command restart
+📚 **Complete Data Import Documentation:**
+```
+docs/data-import/
+├── README.md                    ← Start here (overview)
+├── 00-QUICK-START.md           ← 5-step quick guide
+├── 01-DATA-SPEC.md             ← Detailed structure
+├── 02-EXTRACT-PROMPT.md        ← Generic prompt (copy+paste)
+└── 03-PROCESS-FLOWCHART.md     ← Visual flowchart
+```
 
-# View database (pgAdmin)
-# http://localhost:5050
+**Quick Steps:**
+1. Open: `docs/data-import/00-QUICK-START.md`
+2. Open: `docs/data-import/02-EXTRACT-PROMPT.md`
+3. Copy the PROMPT section
+4. Use in ChatGPT/Claude/Gemini with your app data
+5. Get JSON output
+6. Save as `seed-data.json`
+7. Run: `npm run import-data`
 
-# Reset database to clean state
-.\setup.ps1 -Command reset
+---
 
-# View all options
-.\setup.ps1 -Command help
+## 🛠️ Available Commands
+
+### Development
+```bash
+# Start all servers (frontend + backend)
+npm run dev
+
+# Start backend only
+npm run dev:backend    # Runs on http://localhost:5000
+
+# Start frontend only
+npm run dev:frontend   # Runs on http://localhost:5175
+
+# Build for production
+npm run build
+
+# Run tests
+npm run test
+```
+
+### Database & Data
+```bash
+# Validate Supabase connection
+npm run validate
+
+# Import data from seed-data.json
+npm run import-data
+
+# Import data from specific file
+npm run import-data -- --file=my-data.json
+
+# Seed database with sample data
+npm run seed
+
+# Inspect database schema
+npm run inspect-schema
+
+# Inspect table columns
+npm run inspect-columns
+```
+
+---
+
+## 📂 Project Structure
+
+```
+C:\Repos\Integrity\Integrity\
+│
+├── 📂 frontend/                    React app
+│   ├── src/
+│   │   ├── pages/                  Dashboard pages
+│   │   ├── components/             Reusable components
+│   │   ├── services/               API calls
+│   │   └── theme.js                Design system
+│   └── vite.config.js              Vite configuration
+│
+├── 📂 backend/                     Express API
+│   ├── server.js                   Main server
+│   ├── db/supabase.js              DB connection
+│   ├── routes/                     API endpoints
+│   ├── middleware/                 Auth, logging, etc
+│   └── .env.local                  Environment vars
+│
+├── 📂 scripts/                     Utility scripts
+│   ├── import-data.js              Main import script
+│   ├── validate-supabase.js        Connection tester
+│   └── ... (others)
+│
+├── 📂 docs/                        Documentation
+│   ├── data-import/               Data import guides
+│   ├── API_REFERENCE.md           API docs
+│   ├── DATABASE_SCHEMA.md          DB schema
+│   ├── FRONTEND_DESIGN.md          Design system
+│   └── ... (more docs)
+│
+├── seed-data.json                 Your imported data (create this)
+├── package.json                   Monorepo config
+└── README.md                      This file
+```
+
+---
+
+## 🗄️ Database Setup
+
+### Current Setup: Supabase Cloud
+
+INTEGRITY uses **Supabase** (cloud PostgreSQL) already configured:
+
+**Database Info:**
+- 📍 Host: `omxyeagavmybmyqppudf.supabase.co`
+- 🔐 Project: `omxyeagavmybmyqppudf`
+- 📊 Tables: 10 core tables (users, projects, heat_maps, test_executions, risk_assessments, etc.)
+- ✅ Status: Connected & Ready
+
+**Tables Created:**
+```
+✓ users                    - Application users
+✓ projects                 - Projects & repos
+✓ connections              - External integrations
+✓ project_members          - Team membership
+✓ integration_mappings     - Repository mappings
+✓ heat_maps                - Coverage by module
+✓ test_executions          - Test run results
+✓ risk_assessments         - Risk scores
+✓ audit_logs               - Audit trail
+✓ admin_logs               - Admin changes
+```
+
+**Access Database:**
+- 🔗 Dashboard: https://app.supabase.com
+- 📊 Table Editor: Supabase → Table Editor
+- 🔍 SQL Editor: Supabase → SQL Editor
+
+---
+
+## 🎨 Frontend Features
+
+### 4 Specialized Dashboards
+1. **Executive Dashboard** - High-level KPIs
+2. **QA Dashboard** - Test metrics & coverage
+3. **Developer Dashboard** - Personal productivity
+4. **Admin Panel** - Project management
+
+### 10 Advanced Components
+- Data tables with sorting & filtering
+- Heat maps with risk visualization
+- Charts (bar, line, trend analysis)
+- Export functionality (CSV, JSON, TSV)
+- Forms with validation
+- Modals & dialogs
+- And more...
+
+### Design System
+- **Primary**: Navy Blue (#1e3a8a)
+- **Secondary**: Teal (#0d9488)
+- **Responsive**: 4 breakpoints (mobile, tablet, desktop, wide)
+- **Material-UI v5**: Professional components
+
+---
+
+## 🔌 API Endpoints
+
+All endpoints prefixed with `/api/v1`
+
+### Projects
+```
+GET    /projects              - List all projects
+GET    /projects/:id          - Get project details
+POST   /projects              - Create project
+```
+
+### Heat Maps
+```
+GET    /heatmaps/:projectId   - Get project heat map
+```
+
+### Test Selection
+```
+POST   /test-selection/recommend - Recommend tests
+```
+
+### Risk Assessment
+```
+POST   /risk-assessment/evaluate - Evaluate risk
+```
+
+### Dashboard
+```
+GET    /dashboard/executive/:projectId
+GET    /dashboard/qa/:projectId
+GET    /dashboard/developer/:projectId
+```
+
+### Health
+```
+GET    /health                - API status
+```
+
+Full API reference: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
+
+---
+
+## 🔐 Environment Variables
+
+### Backend (.env.local)
+```
+NODE_ENV=development
+PORT=5000
+SUPABASE_URL=https://omxyeagavmybmyqppudf.supabase.co
+SUPABASE_KEY=sb_publishable_...
+DATABASE_URL=postgresql://postgres:password@...
+```
+
+### Frontend (.env.local)
+```
+VITE_API_URL=http://localhost:5000/api/v1
+VITE_SUPABASE_URL=https://omxyeagavmybmyqppudf.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_...
 ```
 
 ---
@@ -140,417 +369,269 @@ Go to http://localhost:5000/swagger and try:
 ## 📚 Documentation
 
 ### Getting Started
-- **[README_DEMO.md](README_DEMO.md)** - Quick reference (1 page)
-- **[DEMO_SETUP.md](DEMO_SETUP.md)** - Detailed local setup guide
-- **[SUPABASE_CLOUD_QUICK.md](SUPABASE_CLOUD_QUICK.md)** - Supabase Cloud setup (5 min)
-- **[SUPABASE_CLOUD.md](SUPABASE_CLOUD.md)** - Complete Supabase Cloud guide
+- [Quick Start](#-quick-start) - Get running in 3 minutes
+- [Data Import Guide](docs/data-import/README.md) - Import test data from other apps
 
-### API & Backend
-- **[projects/INTEGRITY/src/INTEGRITY.API/README.md](projects/INTEGRITY/src/INTEGRITY.API/README.md)** - API architecture and endpoints
+### Data Import (4 documents)
+- [00-QUICK-START.md](docs/data-import/00-QUICK-START.md) - 5-step guide
+- [01-DATA-SPEC.md](docs/data-import/01-DATA-SPEC.md) - Detailed structure
+- [02-EXTRACT-PROMPT.md](docs/data-import/02-EXTRACT-PROMPT.md) - Ready-to-use prompt
+- [03-PROCESS-FLOWCHART.md](docs/data-import/03-PROCESS-FLOWCHART.md) - Visual flowchart
 
-### Project Phases
-- **Phase 01-07**: ✅ All signed & approved (documentation)
-- **Phase 08**: 🚀 Development in progress (backend + controllers)
-  - [Tech Spec](projects/INTEGRITY/phases/08-development/tech-doc.md)
-  - [Code Standards](projects/INTEGRITY/phases/08-development/code-standards.md)
-
----
-
-## 📦 Architecture Overview
-
-### Backend Stack
-- **Language**: C# .NET 7
-- **Framework**: ASP.NET Core 7
-- **Database**: PostgreSQL 15 (Supabase compatible)
-- **Cache**: Redis 7
-- **ORM**: Entity Framework Core 7
-- **API Documentation**: Swagger/OpenAPI 3.0
-
-### Services (6 implemented)
-1. **HeatMapService** - Code coverage heat maps by module
-2. **TestSelectionService** - Intelligent test selection algorithm
-3. **RiskAssessmentService** - Defect escape risk prediction
-4. **DashboardService** - Role-based dashboard aggregation
-5. **AdminService** - Project & connection management
-6. **AuditService** - Compliance audit trail
-
-### API Endpoints (14+)
-```
-Heat Map API
-  POST   /api/v1/heatmap/generate
-  GET    /api/v1/heatmap/{projectId}/latest
-
-Test Selection API
-  POST   /api/v1/test-selection/recommend
-
-Risk Assessment API
-  POST   /api/v1/risk-assessment/evaluate
-
-Dashboard API
-  GET    /api/v1/dashboard/executive
-  GET    /api/v1/dashboard/qa
-  GET    /api/v1/dashboard/developer/{userId}
-
-Admin API
-  POST   /api/v1/admin/projects
-  GET    /api/v1/admin/projects/{projectId}
-  POST   /api/v1/admin/projects/{projectId}/connections
-  GET    /api/v1/admin/projects/{projectId}/connections/{id}
-  POST   /api/v1/admin/projects/{projectId}/connections/{id}/test
-
-Health Check
-  GET    /api/v1/health
-```
-
----
-
-## 🌐 Deployment Options
-
-The INTEGRITY API can run in any of these configurations:
-
-### 1. Local Development (Docker Compose)
-```
-Your Computer
-├── PostgreSQL 15 (Docker)
-├── Redis 7 (Docker)
-├── pgAdmin (Docker)
-└── .NET 7 API (local process)
-```
-- **Run**: `.\setup.ps1 -Command full`
-- **Cost**: $0
-- **Latency**: <1ms
-- **Use Case**: Development, local testing
-
-### 2. Supabase Cloud + Local API
-```
-Supabase Cloud (PostgreSQL + Auth)
-    ↓ Connection String
-Your Computer (.NET 7 API)
-```
-- **Run**: `dotnet run --environment Supabase.Production`
-- **Cost**: Free-$25/month
-- **Latency**: 50-200ms (depends on region)
-- **Use Case**: Demo, shared development
-
-### 3. Full Cloud (Azure App Service + Supabase)
-```
-Azure App Service (.NET 7 API)
-    ↓
-Supabase Cloud (PostgreSQL)
-```
-- **Cost**: $15-100+/month
-- **Latency**: Optimized by region
-- **Use Case**: Production, public access
-
----
-
-### How to Switch Environments
-
-```powershell
-# Local development (Docker)
-.\setup.ps1 -Command api
-
-# Supabase Cloud (with .NET SDK)
-$env:ASPNETCORE_ENVIRONMENT="Supabase.Production"
-dotnet run -p projects/INTEGRITY/src/INTEGRITY.API
-
-# Azure App Service (after deployment)
-# - Environment variable set in Azure Portal
-# - Connection string from Key Vault
-```
-
----
-
-### Docker Containers
-- **PostgreSQL 15 Alpine** (port 5432)
-  - Database: `integrity_demo`
-  - Demo data: 1 project, 1 admin user, 1 ADO connection
-  
-- **Redis 7 Alpine** (port 6379)
-  - Cache: HeatMap (4h), Tests (30m), Dashboard (5m)
-  
-- **pgAdmin 4** (port 5050)
-  - Database administration UI
-
-### Demo Data
-```
-Project ID: 550e8400-e29b-41d4-a716-446655440000
-├── Name: "INTEGRITY Demo"
-├── Repository: https://github.com/demo/integrity
-├── User: admin@demo.local (Admin role)
-└── Connection: ADO (Azure DevOps)
-```
-
-### Database Schema
-The initialization script creates 10 tables:
-- `users` - Application users by project
-- `projects` - Projects and repositories
-- `connections` - External system integrations
-- `project_members` - Team membership
-- `integration_mappings` - Repository to system mappings
-- `heat_maps` - Coverage data by module
-- `test_executions` - Test run history
-- `risk_assessments` - Defect risk scores
-- `audit_logs` - Immutable audit trail (compliance)
-- `admin_logs` - Admin configuration changes
-
-All tables support multi-tenant isolation via `project_id` foreign key.
-
----
-
-## 🔧 Development Workflow
-
-### Local Development Setup
-
-```powershell
-# Start everything
-.\setup.ps1 -Command full
-.\setup.ps1 -Command api
-
-# API runs on http://localhost:5000
-# pgAdmin runs on http://localhost:5050
-# PostgreSQL on localhost:5432
-# Redis on localhost:6379
-```
-
-### Migrating from Local to Supabase Cloud
-
-```powershell
-# 1. Create Supabase project: https://app.supabase.com
-
-# 2. Run init-db.sql in Supabase SQL Editor
-#    (Creates schema and demo data)
-
-# 3. Save credentials in User Secrets:
-cd projects/INTEGRITY/src/INTEGRITY.API
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=xxx;..."
-
-# 4. Switch environment variable:
-$env:ASPNETCORE_ENVIRONMENT="Supabase.Production"
-dotnet run
-
-# ✅ Now using Supabase Cloud!
-```
-
----
-```powershell
-cd projects/INTEGRITY/src/INTEGRITY.API
-
-# Create migration after model changes
-dotnet ef migrations add MigrationName --environment Supabase.Local
-
-# Apply migration
-dotnet ef database update --environment Supabase.Local
-```
-
-### 3. API Testing
-- Swagger UI: http://localhost:5000/swagger
-- Health check: http://localhost:5000/api/v1/health
-- cURL example:
-  ```bash
-  curl -X POST http://localhost:5000/api/v1/heatmap/generate \
-    -H "Content-Type: application/json" \
-    -d '{"projectId":"550e8400-e29b-41d4-a716-446655440000","repositoryBranchId":"main"}'
-  ```
-
-### 4. Database Administration
-- Open: http://localhost:5050
-- Email: admin@demo.local
-- Password: admin
-- Add Server: postgres / 5432 / postgres / postgres
-
----
-
-## 📊 Demo Data & Testing
-
-### Pre-loaded Data
-The `init-db.sql` script automatically loads:
-- 1 Project (INTEGRITY Demo)
-- 1 Admin User (admin@demo.local)
-- 1 ADO Connection (for demos)
-
-### Testing Endpoints
-
-**Heat Map Generation**:
-```bash
-curl -X POST http://localhost:5000/api/v1/heatmap/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "projectId": "550e8400-e29b-41d4-a716-446655440000",
-    "repositoryBranchId": "main"
-  }'
-```
-
-**Dashboard Query**:
-```bash
-curl http://localhost:5000/api/v1/dashboard/executive
-```
-
-**Health Check**:
-```bash
-curl http://localhost:5000/api/v1/health
-```
+### Technical Documentation
+- [API_REFERENCE.md](docs/API_REFERENCE.md) - All API endpoints
+- [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) - Database structure
+- [FRONTEND_DESIGN.md](docs/FRONTEND_DESIGN.md) - Design system & components
+- [ADVANCED_COMPONENTS.md](docs/ADVANCED_COMPONENTS.md) - Component reference
+- [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) - Supabase configuration
 
 ---
 
 ## 🚨 Troubleshooting
 
-### Docker Won't Start
-```powershell
-# Check if Docker Desktop is running
-# Try: docker ps
+### "Port 5000 already in use"
+```bash
+# Find process using port 5000
+netstat -ano | findstr :5000
 
-# If containers fail:
-.\setup.ps1 -Command restart
+# Kill the process (replace PID)
+taskkill /PID <PID> /F
+
+# Restart
+npm run dev
 ```
 
-### PostgreSQL Connection Error
-```powershell
-# View logs
-docker logs integrity-postgres
+### "Cannot connect to Supabase"
+```bash
+# Validate connection
+npm run validate
 
-# Check if port 5432 is available
-netstat -ano | findstr :5432
+# Check credentials in backend/.env.local
+cat backend\.env.local
+
+# Verify internet connection
 ```
 
-### .NET Dependencies Issue
-```powershell
-cd projects/INTEGRITY/src/INTEGRITY.API
-dotnet restore
+### "Module not found" errors
+```bash
+# Clear node_modules and reinstall
+rm -r node_modules package-lock.json
+npm install
 ```
 
-### Port Already in Use
-Modify ports in `docker-compose.local.yml`:
-```yaml
-postgres:
-  ports:
-    - "5433:5432"  # Changed from 5432 to 5433
+### "Frontend won't load"
+```bash
+# Check frontend server is running
+# Terminal should show: Local: http://localhost:5175
+
+# If not, try:
+npm run dev:frontend
+
+# Try different port if 5175 is busy
+# Vite fallback: 5174, 5173
 ```
 
-### Reset Everything to Clean State
-```powershell
-.\setup.ps1 -Command reset
-```
+### "Data import fails"
+```bash
+# Validate JSON format
+npm run inspect-schema
 
----
+# Check seed-data.json syntax
+# Use https://jsonlint.com/ to validate
 
-## 📁 Project Structure
-
-```
-integrity/
-├── README.md                           # This file
-├── README_DEMO.md                      # Quick start reference
-├── DEMO_SETUP.md                       # Detailed setup guide
-├── setup.ps1                           # Automated setup script
-├── docker-compose.local.yml            # Docker containers
-├── init-db.sql                         # Database initialization
-│
-└── projects/INTEGRITY/
-    ├── src/INTEGRITY.API/              # Backend API (.NET 7)
-    │   ├── Controllers/                # 6 API controllers
-    │   ├── Services/                   # 6 business services
-    │   ├── Models/                     # 8 domain entities
-    │   ├── Data/                       # EF Core context
-    │   ├── DTOs/                       # 20+ request/response types
-    │   ├── README.md                   # API documentation
-    │   ├── appsettings.json            # Production config
-    │   └── appsettings.Supabase.Local.json  # Local config
-    │
-    ├── phases/                         # SDLC phases 01-08
-    │   ├── 01-discovery/
-    │   ├── 02-strategy/
-    │   ├── 03-planning/
-    │   ├── 04-requirements/
-    │   ├── 05-architecture/
-    │   ├── 06-planning/
-    │   ├── 07-governance/
-    │   └── 08-development/
-    │
-    └── docs/
-        ├── API specifications
-        ├── Architecture decisions
-        └── Design documents
+# See detailed error:
+npm run import-data (watch for specific error messages)
 ```
 
 ---
 
-## 🔐 Security & Configuration
+## 🤖 Using AI to Extract Data
 
-### Local Demo (Current)
-⚠️ **NOT for production**:
-- Hardcoded credentials
-- No HTTPS (local only)
-- Basic authentication
-- Database password: `postgres`
+If you have test data in another system:
 
-### Production Deployment
-For cloud deployment (Azure):
-- Use Azure Key Vault for secrets
-- OAuth 2.0 / SAML integration
-- Managed identity authentication
-- TLS/HTTPS required
-- Strong database passwords
-- Network security groups
+1. **Open:** [docs/data-import/02-EXTRACT-PROMPT.md](docs/data-import/02-EXTRACT-PROMPT.md)
+2. **Copy** the PROMPT section
+3. **Use in** ChatGPT, Claude, or Gemini
+4. **Provide** your app context and data
+5. **Get** JSON output
+6. **Save** as `seed-data.json`
+7. **Run** `npm run import-data`
+
+The prompt handles all conversions and validations automatically!
 
 ---
 
-## 📋 Remaining Work (Phase 08)
+## ✨ Features
 
-### ✅ Completed
-- [x] API Controllers (6 + Health)
-- [x] Core Services (HeatMap, TestSelection, RiskAssessment)
-- [x] Supporting Services (Dashboard, Admin, Audit)
-- [x] Startup Configuration
-- [x] Swagger/OpenAPI documentation
-- [x] PostgreSQL/Supabase local setup
-- [x] Docker multi-container environment
-- [x] Automated setup script
+### Dashboards
+- ✅ Executive dashboard with KPIs
+- ✅ QA metrics and coverage tracking
+- ✅ Developer productivity dashboard
+- ✅ Admin project management
 
-### 🚀 In Progress
-- [ ] Authentication middleware (OAuth 2.0)
-- [ ] Authorization (role-based access control)
-- [ ] Integration handlers (ADO, GitHub, SonarQube)
+### Data Management
+- ✅ Multi-project support
+- ✅ Role-based access (admin, qa, developer, executive, manager)
+- ✅ Team member management
+- ✅ Integration mappings
 
-### 📌 Not Yet Started
-- [ ] Azure Functions (async jobs)
-- [ ] Unit tests (xUnit + Moq)
-- [ ] React frontend
-- [ ] CI/CD pipeline
-- [ ] Production deployment
+### Analytics
+- ✅ Heat maps by module
+- ✅ Test execution trends
+- ✅ Risk assessments
+- ✅ Coverage analysis
+
+### Import/Export
+- ✅ JSON data import
+- ✅ Multi-format export (CSV, JSON, TSV)
+- ✅ Batch import with validation
+- ✅ Automated field mapping
 
 ---
 
-## 🤝 Contributing
+## 🔄 Development Workflow
 
-1. Clone the repository
-2. Run `.\setup.ps1 -Command full` to set up local environment
-3. Create feature branch: `git checkout -b feature/xyz`
-4. Make changes and test via Swagger UI
-5. Commit with clear messages
-6. Push and create Pull Request
+### Add New Data to Existing Project
+
+1. Update your source system with new data
+2. Run AI extraction again with updated data
+3. Update `seed-data.json`
+4. Run `npm run import-data`
+5. Dashboard auto-updates
+
+### Make Backend Changes
+
+```bash
+# Edit files in backend/
+# Changes auto-reload with npm run dev:backend
+
+# Test via http://localhost:5000/health
+curl http://localhost:5000/health
+
+# View logs in terminal
+```
+
+### Make Frontend Changes
+
+```bash
+# Edit files in frontend/src/
+# Changes auto-reload with hot module replacement
+
+# Refresh browser or it auto-reloads
+```
+
+---
+
+## 📋 Next Steps
+
+1. ✅ **Run the app** - `npm run dev`
+2. ✅ **Open dashboard** - http://localhost:5175
+3. ✅ **Import data** - Follow [Data Import Guide](docs/data-import/README.md)
+4. ✅ **Explore dashboards** - See your test data
+5. 🚀 **Customize** - Add your own projects and data
 
 ---
 
 ## 📞 Support
 
-For detailed information:
-- **Quick Start**: See [README_DEMO.md](README_DEMO.md)
-- **Setup Details**: See [DEMO_SETUP.md](DEMO_SETUP.md)
-- **API Docs**: See [projects/INTEGRITY/src/INTEGRITY.API/README.md](projects/INTEGRITY/src/INTEGRITY.API/README.md)
-- **Architecture**: See `projects/INTEGRITY/phases/05-architecture/`
+### Documentation
+- **Quick Answers**: This README
+- **Data Import**: [docs/data-import/README.md](docs/data-import/README.md)
+- **API Details**: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
+- **Database**: [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)
+
+### Common Issues
+See [Troubleshooting](#-troubleshooting) section above
+
+### Database Access
+- Dashboard: https://app.supabase.com
+- Project: omxyeagavmybmyqppudf
+- Use SQL Editor or Table Editor for direct access
+
+---
+
+## 📊 Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Frontend (React 18)                  │
+│  Dashboard | Components | Material-UI | Responsive     │
+│              (http://localhost:5175)                     │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                  HTTP API
+                   (CORS)
+                       │
+┌──────────────────────▼──────────────────────────────────┐
+│               Backend (Express.js)                       │
+│ Routes | Middleware | Validators | Error Handling      │
+│          (http://localhost:5000)                         │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+               PostgreSQL Client
+                       │
+┌──────────────────────▼──────────────────────────────────┐
+│           Supabase Cloud (PostgreSQL)                   │
+│  Projects | Users | Heat Maps | Test Results           │
+│           (Cloud Database)                              │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Project Status
+
+### ✅ Completed
+- [x] Backend API (6 routes + health check)
+- [x] Frontend dashboards (4 specialized)
+- [x] Advanced components (10 reusable)
+- [x] Supabase integration
+- [x] Data import system
+- [x] Design system
+- [x] API documentation
+- [x] Data import documentation
+
+### 🚀 Ready to Use
+- [x] Local development environment
+- [x] Data extraction prompts
+- [x] Import scripts & validation
+- [x] Responsive UI
+- [x] Role-based dashboards
+
+### 📌 Future Enhancements
+- [ ] Backend unit tests
+- [ ] Frontend component tests
+- [ ] CI/CD pipeline
+- [ ] Production deployment
+- [ ] Advanced analytics
+- [ ] Machine learning models
 
 ---
 
 ## 📄 License
 
-This project is proprietary and confidential. All rights reserved.
+Proprietary - All rights reserved.
 
 ---
 
-**Project**: INTEGRITY  
-**Phase**: 08 Development (Hybrid Approach)  
-**Version**: 1.0.0-alpha  
-**Last Updated**: May 1, 2026  
-**Status**: 🚀 In Active Development
+## 🚀 Quick Links
 
-For local demo execution: `.\setup.ps1 -Command full`
+| Link | Purpose |
+|------|---------|
+| http://localhost:5175 | Main application |
+| http://localhost:5000/health | API health check |
+| https://app.supabase.com | Database dashboard |
+| [docs/data-import/](docs/data-import/) | Data import guides |
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API documentation |
+
+---
+
+**INTEGRITY | Intelligent Test Selection & Risk Assessment**  
+**v1.0.0 | Node.js + React + Supabase | May 2026**
+
+```
+                    npm run dev
+                        ↓
+        ✨ Application Ready ✨
+         http://localhost:5175
+```

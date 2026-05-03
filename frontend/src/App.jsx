@@ -1,19 +1,29 @@
-import { useRoutes } from 'react-router-dom';
+import { useRoutes, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import QADashboard from './pages/QADashboard';
 import DeveloperDashboard from './pages/DeveloperDashboard';
 import AdminPanel from './pages/AdminPanel';
 import Dashboard from './pages/Dashboard';
 
+// INTEGRITY App with full routing
 export default function App() {
   const routes = useRoutes([
     {
+      path: '/login',
+      element: <Login />,
+    },
+    {
       path: '/',
-      element: <Layout />,
+      element: (
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      ),
       children: [
-        { path: '/', element: <Dashboard /> },
+        { path: '/', element: <Navigate to="/dashboard" replace /> },
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'dashboard/executive', element: <ExecutiveDashboard /> },
         { path: 'dashboard/qa', element: <QADashboard /> },
@@ -21,7 +31,6 @@ export default function App() {
         { path: 'admin', element: <AdminPanel /> },
       ],
     },
-    { path: '/login', element: <Login /> },
   ]);
 
   return routes;

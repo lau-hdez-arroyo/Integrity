@@ -24,17 +24,20 @@ export default function ExecutiveDashboard() {
   const projectId = '550e8400-e29b-41d4-a716-446655440000'; // TODO: Get from URL params
 
   useEffect(() => {
+    console.log('ExecutiveDashboard mounted');
     fetchDashboardData();
   }, []);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/v1/dashboard/executive/${projectId}`);
+      console.log('Fetching executive dashboard data for project:', projectId);
+      const response = await api.get(`/dashboard/executive/${projectId}`);
+      console.log('Dashboard data received:', response.data);
       setData(response.data.data);
     } catch (err) {
+      console.error('Dashboard fetch error:', err);
       setError(err.message || 'Failed to load dashboard data');
-      console.error(err);
     } finally {
       setLoading(false);
     }

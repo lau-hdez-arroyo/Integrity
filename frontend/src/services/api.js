@@ -30,6 +30,8 @@ apiClient.interceptors.response.use(
   },
 );
 
+export const api = apiClient;
+
 export const projectsAPI = {
   getAll: () => apiClient.get('/projects'),
   getById: (projectId) => apiClient.get(`/projects/${projectId}`),

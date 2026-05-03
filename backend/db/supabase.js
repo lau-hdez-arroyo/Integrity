@@ -9,9 +9,16 @@ let pgPool;
 export async function initSupabase() {
   try {
     // Initialize Supabase client
+    // Use SERVICE_ROLE_KEY if available, otherwise use regular KEY (anon key)
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+    
+    if (!process.env.SUPABASE_URL || !supabaseKey) {
+      throw new Error('SUPABASE_URL and SUPABASE_KEY (or SUPABASE_SERVICE_ROLE_KEY) are required');
+    }
+
     supabaseClient = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+      supabaseKey
     );
 
     // Test connection

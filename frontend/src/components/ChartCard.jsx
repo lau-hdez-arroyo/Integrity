@@ -41,11 +41,11 @@ export default function ChartCard({
         action={action}
         titleTypographyProps={{
           variant: 'h6',
-          sx={{ fontWeight: 700, color: '#0f172a' },
+          sx: { fontWeight: 700, color: '#0f172a' },
         }}
         subheaderTypographyProps={{
           variant: 'body2',
-          sx={{ color: '#64748b', marginTop: '4px' },
+          sx: { color: '#64748b', marginTop: '4px' },
         }}
         sx={{
           paddingBottom: '16px',

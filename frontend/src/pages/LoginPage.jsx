@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { signIn } from '../services/auth';
 
-export default function Login() {
+export default function LoginPage() {
   const [email, setEmail] = useState('laura.hernandez@payflow.com');
   const [password, setPassword] = useState('Payflow@2026');
   const [loading, setLoading] = useState(false);

@@ -1,0 +1,219 @@
+{
+  "users": [
+    {
+      "email": "laura.hernandez@payflow.com",
+      "role": "Admin",
+      "is_active": true
+    },
+    {
+      "email": "carlos.martinez@payflow.com",
+      "role": "QA",
+      "is_active": true
+    },
+    {
+      "email": "sofia.rodriguez@payflow.com",
+      "role": "Developer",
+      "is_active": true
+    },
+    {
+      "email": "juan.torres@payflow.com",
+      "role": "PM",
+      "is_active": true
+    },
+    {
+      "email": "diego.sanchez@payflow.com",
+      "role": "Developer",
+      "is_active": true
+    }
+  ],
+  "projects": [
+    {
+      "name": "PayFlow Platform",
+      "repository_url": "https://github.com/payflow/platform"
+    },
+    {
+      "name": "Mobile Banking App",
+      "repository_url": "https://github.com/payflow/mobile-banking"
+    },
+    {
+      "name": "Payment Gateway",
+      "repository_url": "https://github.com/payflow/payment-gateway"
+    }
+  ],
+  "project_members": [
+    {
+      "project_name": "PayFlow Platform",
+      "user_email": "laura.hernandez@payflow.com",
+      "role": "Admin"
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "user_email": "carlos.martinez@payflow.com",
+      "role": "QA Lead"
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "user_email": "sofia.rodriguez@payflow.com",
+      "role": "Developer"
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "user_email": "diego.sanchez@payflow.com",
+      "role": "Developer"
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "user_email": "juan.torres@payflow.com",
+      "role": "PM"
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "user_email": "sofia.rodriguez@payflow.com",
+      "role": "Developer"
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "user_email": "carlos.martinez@payflow.com",
+      "role": "QA Lead"
+    },
+    {
+      "project_name": "Payment Gateway",
+      "user_email": "diego.sanchez@payflow.com",
+      "role": "Developer"
+    },
+    {
+      "project_name": "Payment Gateway",
+      "user_email": "carlos.martinez@payflow.com",
+      "role": "QA"
+    }
+  ],
+  "heat_maps": [
+    {
+      "project_name": "PayFlow Platform",
+      "module_name": "Authentication Service",
+      "coverage_percentage": 94
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "module_name": "Payment Processing",
+      "coverage_percentage": 87
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "module_name": "Fraud Detection",
+      "coverage_percentage": 91
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "module_name": "Reporting & Analytics",
+      "coverage_percentage": 72
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "module_name": "Database Layer",
+      "coverage_percentage": 88
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "module_name": "iOS App",
+      "coverage_percentage": 85
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "module_name": "Android App",
+      "coverage_percentage": 81
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "module_name": "Payment UI",
+      "coverage_percentage": 79
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "module_name": "Push Notifications",
+      "coverage_percentage": 68
+    },
+    {
+      "project_name": "Payment Gateway",
+      "module_name": "REST API Endpoints",
+      "coverage_percentage": 92
+    },
+    {
+      "project_name": "Payment Gateway",
+      "module_name": "Authentication & OAuth",
+      "coverage_percentage": 96
+    },
+    {
+      "project_name": "Payment Gateway",
+      "module_name": "Error Handling",
+      "coverage_percentage": 84
+    },
+    {
+      "project_name": "Payment Gateway",
+      "module_name": "Rate Limiting",
+      "coverage_percentage": 78
+    }
+  ],
+  "test_executions": [
+    {
+      "project_name": "PayFlow Platform",
+      "execution_time_seconds": 245,
+      "status": "completed"
+    },
+    {
+      "project_name": "PayFlow Platform",
+      "execution_time_seconds": 238,
+      "status": "completed"
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "execution_time_seconds": 312,
+      "status": "completed"
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "execution_time_seconds": 298,
+      "status": "completed"
+    },
+    {
+      "project_name": "Payment Gateway",
+      "execution_time_seconds": 156,
+      "status": "completed"
+    },
+    {
+      "project_name": "Payment Gateway",
+      "execution_time_seconds": 148,
+      "status": "completed"
+    }
+  ],
+  "risk_assessments": [
+    {
+      "project_name": "PayFlow Platform",
+      "risk_score": 5.8,
+      "identified_risks": [
+        "Low coverage in Reporting & Analytics module (72%)",
+        "Multiple failed tests in Payment Processing",
+        "Potential security gaps in fraud detection logic",
+        "Database layer needs additional integration tests"
+      ]
+    },
+    {
+      "project_name": "Mobile Banking App",
+      "risk_score": 6.2,
+      "identified_risks": [
+        "Push notification module has low coverage (68%)",
+        "Payment UI tests show 79% coverage",
+        "Android app coverage slightly lower than iOS",
+        "Missing end-to-end mobile payment scenarios"
+      ]
+    },
+    {
+      "project_name": "Payment Gateway",
+      "risk_score": 3.9,
+      "identified_risks": [
+        "Rate limiting module needs additional test cases",
+        "Error handling could be more comprehensive"
+      ]
+    }
+  ]
+}

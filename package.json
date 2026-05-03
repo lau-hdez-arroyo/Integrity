@@ -19,7 +19,14 @@
     "test:frontend": "npm run test --workspace=frontend",
     "lint": "npm run lint --workspace=backend && npm run lint --workspace=frontend",
     "lint:fix": "npm run lint:fix --workspace=backend && npm run lint:fix --workspace=frontend",
-    "start": "npm run start --workspace=backend"
+    "start": "npm run start --workspace=backend",
+    "validate": "node scripts/validate-supabase.js",
+    "seed": "node scripts/seed-database.js",
+    "import-data": "node scripts/import-data.js",
+    "import-dummy": "node scripts/import-backend.js",
+    "create-auth-users": "node scripts/create-auth-users.js",
+    "generate-data": "node scripts/generate-dummy-data.js",
+    "generate-data:large": "node scripts/generate-dummy-data.js --projects=10"
   },
   "workspaces": [
     "backend",
@@ -27,5 +34,8 @@
   ],
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "pg": "^8.20.0"
   }
 }

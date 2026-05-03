@@ -163,11 +163,11 @@ export default function AdminPanel() {
                   secondary={`Repository: ${project.repo}`}
                   primaryTypographyProps={{
                     variant: 'body1',
-                    sx={{ fontWeight: 600, color: '#0f172a' },
+                    sx: { fontWeight: 600, color: '#0f172a' },
                   }}
                   secondaryTypographyProps={{
                     variant: 'caption',
-                    sx={{ color: '#64748b' },
+                    sx: { color: '#64748b' },
                   }}
                 />
                 <ListItemSecondaryAction>
