@@ -90,8 +90,8 @@
 - [x] Quick navigation buttons por rol
 - [x] Project info header
 
-#### 2.3.2 QA Dashboard
-**Métricas Mostradas:**
+#### 2.3.2 QA Dashboard - Intelligent Test Regression Mapping Engine
+**Core Metrics & Visualizations:**
 - [x] Total de test executions
 - [x] Test pass/fail rate
 - [x] Execution status distribution (passed, failed, skipped)
@@ -99,11 +99,235 @@
 - [x] Heat map de failures por componente
 - [x] Last execution date
 
-**Funcionalidades:**
-- [ ] Matriz de Roles y Permisos (NUEVO - usuario solicitó)
+**NEW: Intelligent Regression Mapping System** 🚀
+This system acts as the intelligence layer that detects which tests must run when code changes occur.
+
+##### 2.3.2.1 Mapeo de Regresión Inteligente (Smart Regression Mapping)
+**Purpose:** Cross-reference modified files with test stack traces and report metadata to identify affected functionality.
+
+**Entrada (Input Data):**
+- Changed files/modules from Git diff (HEAD~1..HEAD)
+- Test stack traces from last execution report
+- Test metadata (test name, affected components, severity)
+- Historical failure patterns (which tests find bugs in which areas)
+
+**Procesamiento (Processing Logic):**
+- Parse Git diff to extract modified file paths
+- Map files to functional modules (e.g., `auth.js` → "Authentication")
+- Match modified modules against test stack traces
+- Cross-reference with historical test-module correlation data
+- Generate impact assessment with confidence scores
+
+**Salida Principal (Primary Output):**
+```json
+{
+  "changed_files": ["backend/routes/auth.js", "backend/middleware/auth.js"],
+  "mapped_components": [
+    {
+      "component_name": "Authentication",
+      "modified_files": 2,
+      "impacted_test_count": 18,
+      "confidence": 0.95
+    }
+  ],
+  "regression_mapping": [
+    {
+      "changed_component": "Authentication",
+      "direct_impact_tests": [
+        {
+          "test_id": "login-001",
+          "test_name": "Login with valid credentials",
+          "priority": "P0",
+          "confidence_index": 0.98,
+          "failure_history": { "found_bugs": 8, "avg_detection_rate": 0.92 }
+        },
+        {
+          "test_id": "token-refresh-001",
+          "test_name": "JWT token auto-refresh",
+          "priority": "P1",
+          "confidence_index": 0.87,
+          "failure_history": { "found_bugs": 5, "avg_detection_rate": 0.78 }
+        }
+      ],
+      "indirect_risk_areas": [
+        {
+          "area_name": "Project Access Control",
+          "risk_level": "HIGH",
+          "rationale": "Auth module affects role-based route access; changes here may impact project_members table queries",
+          "affected_tests": 12,
+          "recommended_action": "Execute comprehensive RBAC regression suite"
+        },
+        {
+          "area_name": "API Token Validation",
+          "risk_level": "MEDIUM",
+          "rationale": "All protected endpoints depend on JWT validation in middleware",
+          "affected_tests": 7,
+          "recommended_action": "Sample 3-5 critical APIs (users, projects, dashboard)"
+        }
+      ],
+      "optimization_metric": {
+        "total_suite_count": 394,
+        "tests_to_execute": 37,
+        "tests_safe_to_skip": 357,
+        "optimization_percentage": 90.6,
+        "confidence": "High (based on 8 similar historical changes)"
+      }
+    }
+  ]
+}
+```
+
+##### 2.3.2.2 Identificación de "Efecto Dominó" (Cascading Impact Detection)
+**Purpose:** Detect components without direct modifications that historically depend on changed areas.
+
+**Detection Algorithm:**
+- Query historical test execution data: when tests in area X fail, which tests in area Y also fail?
+- Build correlation matrix of test co-failures
+- For each changed component, identify areas with > 60% co-failure correlation
+- Weight by historical severity (P0 failures weighted more heavily)
+
+**Output Example:**
+```json
+{
+  "cascade_analysis": {
+    "trigger_area": "Authentication",
+    "cascade_chain": [
+      {
+        "area": "Project Selection (PostLoginRedirect)",
+        "co_failure_rate": 0.87,
+        "historical_evidence": "In 23/23 auth failures, PostLoginRedirect also failed. 18 were P0 severity.",
+        "reason": "Depends on user role extracted from auth token"
+      },
+      {
+        "area": "Role-Based Dashboard Access",
+        "co_failure_rate": 0.72,
+        "historical_evidence": "In 18/25 auth failures affecting JWT, dashboard access control also failed.",
+        "reason": "RoleProtectedRoute validates role from AuthContext"
+      }
+    ]
+  }
+}
+```
+
+##### 2.3.2.3 Priorización por "Índice de Confianza" (Confidence Index)
+**Purpose:** Rank suggested tests by their historical bug-finding effectiveness in these code areas.
+
+**Confidence Index Calculation:**
+```
+Confidence = (0.4 × Historical_Bug_Detection_Rate) +
+             (0.3 × P_Level_Weight) +
+             (0.2 × Recency_Weight) +
+             (0.1 × Execution_Stability)
+```
+
+Where:
+- `Historical_Bug_Detection_Rate`: % of times this test found a bug in this component
+- `P_Level_Weight`: P0=1.0, P1=0.8, P2=0.6, P3=0.4
+- `Recency_Weight`: Higher if similar changes were made recently
+- `Execution_Stability`: Higher if test passes consistently (not flaky)
+
+**Example Output (Sorted by Confidence):**
+```json
+{
+  "prioritized_tests": [
+    {
+      "rank": 1,
+      "test_name": "Login with valid credentials",
+      "confidence_index": 0.98,
+      "expected_execution_time": "2.3s",
+      "rationale": "Directly touches modified auth.js; 92% historical bug detection in this file"
+    },
+    {
+      "rank": 2,
+      "test_name": "JWT token auto-refresh",
+      "confidence_index": 0.87,
+      "expected_execution_time": "1.8s",
+      "rationale": "Tests middleware touched by changes; 78% bug detection"
+    },
+    {
+      "rank": 3,
+      "test_name": "Role-based access denied",
+      "confidence_index": 0.75,
+      "expected_execution_time": "1.5s",
+      "rationale": "Indirect: depends on auth token validation; 65% historical co-failure"
+    }
+  ],
+  "execution_recommendation": "Execute tests ranked 1-3 (5.6s total). Skip rest with 90% confidence in quality."
+}
+```
+
+##### 2.3.2.4 Restricción: Ejecución Quirúrgica (No "Run All Tests")
+**Constraint:** The system MUST NEVER suggest running the entire test suite. Success is measured by:
+1. **Execution Time Reduction:** Recommend only 5-15% of suite for typical changes
+2. **Quality Preservation:** Maintain >= 99% bug detection rate
+3. **Risk-Based Selection:** Select tests based on historical data, not arbitrary coverage
+
+**Rules:**
+- If suggested tests >= 50% of total suite → escalate to manual review
+- If any P0 test is bypassed → show detailed justification and historical evidence
+- Always show optimization percentage and confidence level
+
+##### 2.3.2.5 Data Storage & API Endpoints
+**New Database Tables:**
+```sql
+test_regression_mappings (
+  id UUID PRIMARY KEY,
+  project_id UUID (FK projects),
+  component_name VARCHAR,
+  test_id UUID (FK tests),
+  correlation_strength DECIMAL (0-1),
+  last_updated TIMESTAMP,
+  UNIQUE (project_id, component_name, test_id)
+)
+
+test_historical_performance (
+  id UUID PRIMARY KEY,
+  project_id UUID (FK projects),
+  test_id VARCHAR,
+  component_name VARCHAR,
+  bugs_found INTEGER,
+  total_executions INTEGER,
+  failure_rate DECIMAL (0-1),
+  avg_execution_time_ms INTEGER,
+  p_level VARCHAR (P0, P1, P2, P3),
+  created_at TIMESTAMP
+)
+
+code_component_mapping (
+  id UUID PRIMARY KEY,
+  project_id UUID (FK projects),
+  file_path VARCHAR,
+  component_name VARCHAR,
+  module_category VARCHAR,
+  created_at TIMESTAMP
+)
+```
+
+**New API Endpoints:**
+```
+POST   /api/v1/dashboard/qa/analyze-changes
+  Input: { changed_files: [], project_id }
+  Output: Complete regression mapping JSON (as above)
+  
+GET    /api/v1/dashboard/qa/regression-report/{project_id}
+  Output: Historical regression analysis + trends
+  
+GET    /api/v1/dashboard/qa/confidence-scores/{project_id}
+  Output: Test confidence index rankings
+  
+GET    /api/v1/dashboard/qa/cascade-analysis/{project_id}/{component}
+  Output: Dominó effect analysis for specific component
+```
+
+**Funcionalidades Adicionales en QA Dashboard:**
+- [ ] Matriz de Roles y Permisos
 - [ ] Test execution details view
 - [ ] Filter por date range
 - [ ] Export de reportes QA
+- [ ] Code change upload / Git webhook integration
+- [ ] Real-time regression analysis visualization
+- [ ] Historical trend analysis (bug detection effectiveness over time)
+- [ ] Confidence score indicators on test recommendations
 
 #### 2.3.3 Developer Dashboard
 **Métricas Mostradas:**
@@ -208,7 +432,306 @@ heat_maps (
 )
 ```
 
-### 2.7 MÓDULO DE OBSERVABILITY (PILLAR I) ⏳ (PLANEADO)
+### 2.7 MÓDULO DE INTELLIGENT REGRESSION MAPPING (IRMS) ⏳ (PLANEADO - NUEVA CARACTERÍSTICA)
+
+**Estado:** 🚀 **NUEVO MÓDULO** - Core intelligence engine del QA Dashboard
+
+#### 2.7.1 Descripción General
+Este módulo actúa como el **núcleo de inteligencia** de Project INTEGRITY, analizando cambios de código y determinando automáticamente exactamente qué tests ejecutar con máxima confianza y mínimo tiempo.
+
+**Propósito:**
+- Mapeo de cambios de código a tests específicos que los cubren
+- Detección de dependencias indirectas ("efecto dominó")
+- Priorización de tests por su efectividad histórica en detectar bugs
+- Reducción quirúrgica del tiempo de ejecución (5-15% de suite vs 100%)
+- Preservación de calidad con >= 99% bug detection rate
+
+#### 2.7.2 Componentes Principales
+
+**A. Regression Mapping Engine (Motor de Mapeo)**
+- Entrada: Git diff (archivos modificados)
+- Procesamiento: Mapeo file → component → test
+- Salida: Lista de tests directamente impactados
+- Precision: >= 95% accuracy en identificación de tests afectados
+
+**B. Cascading Impact Detector (Detector de Efecto Dominó)**
+- Entrada: Tests directamente impactados
+- Procesamiento: Análisis de dependencias históricas (co-failure rates)
+- Salida: Áreas funcionales con riesgo indirecto
+- Threshold: Solo incluir áreas con > 60% co-failure correlation histórica
+
+**C. Confidence Index Calculator (Calculador de Índice de Confianza)**
+- Métrica: (0.4 × Bug_Detection_Rate) + (0.3 × P_Level) + (0.2 × Recency) + (0.1 × Stability)
+- Rango: 0.0 a 1.0
+- Uso: Ordenar tests por probabilidad de encontrar bugs en esta área
+- Histórico: Datos de ejecuciones pasadas
+
+**D. Optimization Metric Calculator (Calculador de Métrica de Optimización)**
+- Output: % de suite que puede saltarse con seguridad
+- Target: 85-95% para cambios típicos
+- Constraint: Nunca sugerir ejecutar > 50% de suite sin escalation
+
+#### 2.7.3 Data Input Requirements
+
+**Requerimientos de Datos:**
+1. **Git Metadata**
+   - Changed file paths (src/routes/auth.js, backend/middleware/*, etc.)
+   - Modified lines/functions
+   - Commit message (optional, for context)
+
+2. **Test Metadata**
+   - Test name, test_id, file path
+   - Stack traces from last execution
+   - Affected components (which features this test validates)
+   - Priority level (P0-P3)
+
+3. **Historical Execution Data**
+   - Pass/fail outcomes per test per execution
+   - Bugs found by each test per component
+   - Execution times
+   - Failure rates
+   - Recency data (last 30 days, 90 days, historical)
+
+4. **Component Mapping**
+   - Code file → Functional component mapping
+   - Component dependencies
+   - API/Module relationships
+
+#### 2.7.4 API & Output Format
+
+**Input Endpoint:**
+```
+POST /api/v1/qa/analyze-changes
+Content-Type: application/json
+
+{
+  "project_id": "uuid",
+  "changed_files": [
+    "backend/routes/auth.js",
+    "backend/middleware/auth.js"
+  ],
+  "additional_context": {
+    "commit_message": "Fix JWT token refresh issue",
+    "branch": "bugfix/token-refresh"
+  }
+}
+```
+
+**Output Structure:**
+```json
+{
+  "analysis_timestamp": "2026-05-04T14:30:00Z",
+  "project_id": "uuid",
+  "regression_analysis": {
+    "changed_components": [
+      {
+        "component_id": "auth-module",
+        "component_name": "Authentication",
+        "modified_files": [
+          "backend/routes/auth.js",
+          "backend/middleware/auth.js"
+        ],
+        "modified_file_count": 2,
+        "confidence": 0.95
+      }
+    ],
+    "impact_summary": {
+      "direct_impact_tests": 18,
+      "potential_indirect_tests": 12,
+      "total_recommended_tests": 37,
+      "total_suite_count": 394,
+      "optimization_percentage": 90.6,
+      "estimated_execution_time": "245s",
+      "skipped_tests_confidence": 0.97
+    },
+    "recommended_test_execution": [
+      {
+        "rank": 1,
+        "test_id": "login-001",
+        "test_name": "Login with valid credentials",
+        "priority": "P0",
+        "confidence_index": 0.98,
+        "expected_duration_ms": 2300,
+        "affected_component": "Authentication",
+        "historical_bug_detection_rate": 0.92,
+        "last_failure": "2026-04-28T09:15:00Z",
+        "failure_frequency": "rare",
+        "rationale": "Directly touches modified auth.js; 92% historical bug detection in this file"
+      },
+      {
+        "rank": 2,
+        "test_id": "token-refresh-001",
+        "test_name": "JWT token auto-refresh",
+        "priority": "P1",
+        "confidence_index": 0.87,
+        "expected_duration_ms": 1800,
+        "affected_component": "Authentication",
+        "historical_bug_detection_rate": 0.78,
+        "last_failure": "2026-04-25T10:30:00Z",
+        "failure_frequency": "occasional",
+        "rationale": "Tests middleware logic modified in this change set"
+      }
+    ],
+    "cascading_impact_analysis": {
+      "trigger_component": "Authentication",
+      "cascading_risks": [
+        {
+          "affected_area": "Project Access Control (PostLoginRedirect)",
+          "risk_level": "HIGH",
+          "co_failure_rate": 0.87,
+          "historical_evidence": "In 23/23 past auth failures, PostLoginRedirect also failed",
+          "recommended_tests": [
+            {
+              "test_name": "Project auto-selection single project",
+              "confidence_index": 0.82
+            }
+          ]
+        },
+        {
+          "affected_area": "Role-Based Dashboard Access",
+          "risk_level": "MEDIUM",
+          "co_failure_rate": 0.72,
+          "historical_evidence": "18/25 auth-related failures also impacted dashboard access",
+          "recommended_tests": [
+            {
+              "test_name": "QA dashboard load with valid role",
+              "confidence_index": 0.75
+            }
+          ]
+        }
+      ]
+    },
+    "execution_strategy": {
+      "recommendation": "Execute Ranked Tests 1-18 (245s). Safely skip remaining 357 tests.",
+      "confidence_level": 0.97,
+      "reasoning": "Based on 12 similar historical changes to authentication components. 99.1% bug detection preserved with 90.6% time savings.",
+      "fallback": "If any ranked test fails unexpectedly, escalate for manual review of skipped tests.",
+      "quality_guarantee": "This recommendation maintains >= 99% bug detection rate based on historical data."
+    }
+  }
+}
+```
+
+#### 2.7.5 Database Tables for IRMS
+
+```sql
+-- Component mapping: Code files to functional areas
+code_component_mapping (
+  id UUID PRIMARY KEY,
+  project_id UUID NOT NULL (FK projects),
+  file_path VARCHAR NOT NULL,
+  component_name VARCHAR NOT NULL,
+  module_category VARCHAR,
+  parent_component VARCHAR,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  UNIQUE (project_id, file_path)
+)
+
+-- Historical test performance metrics
+test_historical_performance (
+  id UUID PRIMARY KEY,
+  project_id UUID NOT NULL (FK projects),
+  test_id VARCHAR NOT NULL,
+  test_name VARCHAR,
+  component_name VARCHAR NOT NULL,
+  bugs_found INTEGER DEFAULT 0,
+  total_executions INTEGER DEFAULT 0,
+  failure_rate DECIMAL (0-1),
+  avg_execution_time_ms INTEGER,
+  p_level VARCHAR (P0, P1, P2, P3),
+  flakiness_score DECIMAL (0-1),
+  last_executed_at TIMESTAMP,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  UNIQUE (project_id, test_id, component_name)
+)
+
+-- Test-to-component correlation (regression mapping)
+test_regression_mappings (
+  id UUID PRIMARY KEY,
+  project_id UUID NOT NULL (FK projects),
+  test_id VARCHAR NOT NULL,
+  component_name VARCHAR NOT NULL,
+  correlation_type VARCHAR (direct, indirect),
+  correlation_strength DECIMAL (0-1),
+  evidence_count INTEGER,
+  last_updated TIMESTAMP
+)
+
+-- Component dependency graph (for cascading impact analysis)
+component_dependencies (
+  id UUID PRIMARY KEY,
+  project_id UUID NOT NULL (FK projects),
+  source_component VARCHAR NOT NULL,
+  dependent_component VARCHAR NOT NULL,
+  co_failure_rate DECIMAL (0-1),
+  dependent_count INTEGER,
+  last_analyzed TIMESTAMP
+)
+
+-- IRMS analysis results cache (for dashboard performance)
+irms_analysis_cache (
+  id UUID PRIMARY KEY,
+  project_id UUID NOT NULL (FK projects),
+  analysis_timestamp TIMESTAMP,
+  changed_files_hash VARCHAR,
+  analysis_result JSONB,
+  created_at TIMESTAMP,
+  ttl_expiration TIMESTAMP
+)
+```
+
+#### 2.7.6 Integration Points
+
+**Integration with Git/CI-CD:**
+- [ ] Webhook from GitHub/GitLab on push
+- [ ] Parse diff and trigger analysis automatically
+- [ ] Comment on PR with recommended test list
+- [ ] Block merge if P0 tests bypass certain components
+
+**Integration with Test Execution:**
+- [ ] Receive test results from Playwright/Jest
+- [ ] Update historical performance metrics
+- [ ] Recalculate confidence indexes
+- [ ] Learn from false positives/negatives
+
+**Integration with QA Dashboard:**
+- [ ] Display recommended tests
+- [ ] Show confidence scores and rationale
+- [ ] Allow manual override with audit trail
+- [ ] Visualize cascading impact
+
+#### 2.7.7 Learning & Improvement
+
+**Continuous Learning:**
+- Analyze test effectiveness over time
+- Track how many bugs each test finds per component
+- Measure accuracy of confidence index predictions
+- Adjust weights based on historical performance
+- Detect flaky tests and downweight them
+
+**Metrics to Track:**
+- Actual Bug Detection Rate vs Predicted (should converge to 99%+)
+- False Positive Rate (skipped tests that should have failed)
+- False Negative Rate (recommended tests that don't find bugs)
+- Time Savings vs Quality Trade-off
+
+#### 2.7.8 Constraints & Rules
+
+**Hard Constraints:**
+1. Never suggest executing entire suite (max 50% without escalation)
+2. Always show optimization percentage and confidence level
+3. If bypassing P0 tests, require explicit justification + evidence
+4. Maintain >= 99% bug detection rate historically
+
+**Escalation Triggers:**
+- Recommended tests >= 50% of suite
+- Confidence index < 0.75 for critical paths
+- Unknown component (no historical data)
+- Major architectural changes
+
+### 2.8 MÓDULO DE OBSERVABILITY (PILLAR I) ⏳ (PLANEADO)
 
 #### 2.7.1 Production Telemetry Ingestion
 - [ ] Connectors para múltiples fuentes de logs (CloudWatch, DataDog, Splunk, etc.)
@@ -222,29 +745,29 @@ heat_maps (
 - [ ] Automatic test recommendation generation
 - [ ] Coverage analysis dashboard
 
-### 2.8 MÓDULO DE PREDICTIVE IMPACT (PILLAR II) ⏳ (PLANEADO)
+### 2.9 MÓDULO DE PREDICTIVE IMPACT (PILLAR II) ⏳ (PLANEADO)
 
-#### 2.8.1 Code Differential Analysis
+#### 2.9.1 Code Differential Analysis
 - [ ] Git integration para code diffs
 - [ ] LLM-powered dependency mapping
 - [ ] Functional impact scoring (0-100)
 - [ ] Test selection engine (minimal subset)
 
-#### 2.8.2 Impact Dashboard
+#### 2.9.2 Impact Dashboard
 - [ ] Code change visualization
 - [ ] Affected test recommendations
 - [ ] Estimated execution time savings
 - [ ] Risk scoring based on change scope
 
-### 2.9 MÓDULO DE CHAOS ENGINEERING (PILLAR III) ⏳ (PLANEADO)
+### 2.10 MÓDULO DE CHAOS ENGINEERING (PILLAR III) ⏳ (PLANEADO)
 
-#### 2.9.1 Chaos Experiment Management
+#### 2.10.1 Chaos Experiment Management
 - [ ] Definition de chaos scenarios (latency, service outages, etc.)
 - [ ] Scheduling de chaos experiments
 - [ ] Real-time execution monitoring
 - [ ] Recovery tracking y validation
 
-#### 2.9.2 Resilience Scoring
+#### 2.10.2 Resilience Scoring
 - [ ] Auto-healing capability measurement
 - [ ] MTTR (Mean Time to Recovery) tracking
 - [ ] Resilience reports por componente
