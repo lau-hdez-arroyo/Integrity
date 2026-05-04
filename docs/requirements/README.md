@@ -11,86 +11,157 @@ Documento completo de requerimientos que incluye:
 - **Requerimientos No-Funcionales** - Performance, security, scalability
 - **Arquitectura** - Stack tecnológico, flujos de autenticación
 - **API Endpoints** - Referencia completa
-- **Roadmap** - 7 fases de implementación
+- **Roadmap** - 7+ fases de implementación
 - **Criterios de Aceptación** - Tests de validación
 
-**Status:** ✅ Baseline completo (May 4, 2026)
+**Status:** ✅ Baseline completo con IRMS (May 4, 2026)
+
+**Últimas Actualizaciones:**
+- Sección 2.3.2: QA Dashboard expandido con IRMS specs
+- Sección 2.7: Nuevo módulo Intelligent Regression Mapping System (IRMS)
+- Secciones reordenadas: 2.8 (Observability), 2.9 (Predictive), 2.10 (Chaos)
+
+### [QA-DASHBOARD-IRMS-CHANGES.md](./QA-DASHBOARD-IRMS-CHANGES.md) **✨ NEW**
+Resumen de cambios al QA Dashboard e introducción del módulo IRMS:
+- Qué cambió en los requerimientos
+- Componentes principales del IRMS
+- JSON output structure
+- Nuevas tablas de base de datos
+- Nuevos endpoints de API
+- Restricciones & reglas
+- Beneficios & timeline de implementación
+
+**Status:** ✅ Nuevo documento de referencia rápida (May 4, 2026)
 
 ---
 
-## 🎯 Cómo Usar Este Documento
+## 🎯 Cómo Usar Estos Documentos
 
 ### Si eres Developer
-- Lee sección **2. Requerimientos Funcionales** para entender qué construir
-- Revisa **6. API Endpoints** para saber qué endpoints implementar
-- Consulta **5. Arquitectura** para entender la estructura
+- Lee sección **2. Requerimientos Funcionales** en REQUIREMENTS.md
+- Revisa **2.3.2** (QA Dashboard) y **2.7** (IRMS) para nuevas specs
+- Consulta **[../architecture/QA-DASHBOARD-IRMS-IMPLEMENTATION.md](../architecture/QA-DASHBOARD-IRMS-IMPLEMENTATION.md)** para detalles de implementación
 
 ### Si eres QA
-- Revisa sección **8. Criterios de Aceptación** para tests
-- Lee **7. Roadmap** para entender el planning
-- Usa **2. Requerimientos Funcionales** como spec de features
+- Lee **QA-DASHBOARD-IRMS-CHANGES.md** para entender el nuevo sistema
+- Revisa **2.3.2** para nuevas funcionalidades del QA Dashboard
+- Consulta **Criterios de Aceptación** en REQUIREMENTS.md (Sección 8)
 
 ### Si eres Product Manager
-- Lee **1. Visión General** para contexto estratégico
-- Revisa **7. Roadmap** para planning
-- Usa **8. Criterios de Aceptación** para definir "Done"
+- Lee **QA-DASHBOARD-IRMS-CHANGES.md** para resumen ejecutivo
+- Revisa **Beneficios** section (95% reduction in feedback time)
+- Consulta **Roadmap** en REQUIREMENTS.md (10 semanas para Phase 1-5)
 
 ### Si eres DevOps
-- Ve a **3. Requerimientos No-Funcionales** para SLAs
-- Revisa **5. Arquitectura** > Technology Stack
-- Lee **6. API Endpoints** para infrastructure planning
+- Revisa **2.7** (IRMS) en REQUIREMENTS.md para nuevos endpoints API
+- Lee **[../architecture/QA-DASHBOARD-IRMS-IMPLEMENTATION.md](../architecture/QA-DASHBOARD-IRMS-IMPLEMENTATION.md)** para stack requirements
+- Revisa nuevas tablas de BD para migration planning (5 nuevas tablas)
 
 ---
 
 ## 📊 Estado de Implementación
 
-| Módulo | Estado | Completitud |
-|--------|--------|-------------|
-| Autenticación | ✅ Implementado | 100% |
-| Proyectos | ✅ Implementado | 100% |
-| Dashboards | ✅ Implementado | 80% |
-| Test Execution | 🔄 Parcial | 40% |
-| Risk Assessment | 🔄 Parcial | 30% |
-| Heat Maps | ✅ Básico | 60% |
-| Observability | ⏳ Planeado | 0% |
-| Predictive Impact | ⏳ Planeado | 0% |
-| Chaos Engineering | ⏳ Planeado | 0% |
+| Módulo | Estado | Completitud | Última Actualización |
+|--------|--------|-------------|----------------------|
+| Autenticación | ✅ Implementado | 100% | April 30 |
+| Proyectos | ✅ Implementado | 100% | April 30 |
+| Dashboards | ✅ Implementado | 80% | May 1 |
+| **QA Dashboard - IRMS** | 🚀 **Especificado** | **100% spec** | **May 4** |
+| Test Execution | 🔄 Parcial | 40% | April 28 |
+| Risk Assessment | 🔄 Parcial | 30% | April 28 |
+| Heat Maps | ✅ Básico | 60% | May 1 |
+| Observability | ⏳ Planeado | 0% | - |
+| Predictive Impact | ⏳ Planeado | 0% | - |
+| Chaos Engineering | ⏳ Planeado | 0% | - |
 
 ---
 
-## 🔄 Próximos Pasos
+## 🎯 Próximos Pasos
 
 ### Inmediato (Esta semana)
-- [ ] Implementar Roles Matrix en QA Dashboard
-- [ ] Test Execution UI
-- [ ] Advanced Filtering
+- [ ] **Review IRMS Specification**
+  - Leer sección 2.7 en REQUIREMENTS.md
+  - Validar algoritmos y formulas
+  - Revisar API contracts
+- [ ] **Planificar Implementation Phase 1**
+  - Database schema creation
+  - Component mapping setup
 
-### Corto Plazo (2-3 semanas)
-- [ ] Observability connectors
-- [ ] Performance optimization
-- [ ] Security hardening
+### Corto Plazo (Semanas 1-4)
+- [ ] **Phase 1: Foundation**
+  - Database tables creadas
+  - Component mappings populated
+  - Git diff parser implementado
+- [ ] **Phase 2: Intelligence**
+  - Regression mapping engine
+  - Confidence calculator
+  - API endpoint /analyze-changes
 
-### Mediano Plazo (1-2 meses)
-- [ ] Predictive Impact Engine
-- [ ] Advanced Reporting
-- [ ] Mobile Support
+### Mediano Plazo (Semanas 5-10)
+- [ ] **Phase 3: Integration**
+  - GitHub webhook
+  - CI/CD pipeline
+  - PR comments
+- [ ] **Phase 4: Learning**
+  - Historical data collection
+  - Confidence improvements
+- [ ] **Phase 5: Optimization**
+  - Performance tuning
+  - Caching strategy
 
 ---
 
-## 📝 Versionado
+## 📈 IRMS - Beneficios Clave
 
-**Versión Actual:** 1.0  
-**Fecha:** May 4, 2026  
-**Próxima Revisión:** June 1, 2026
-
-Cambios importantes deben documentarse en la sección "Changelog" del documento principal.
+| Métrica | Antes | Después | Mejora |
+|--------|-------|---------|---------|
+| **Tiempo de Feedback** | 4-6 horas | 12-15 min | ⬇️ 95% |
+| **Tests a Ejecutar** | 100% (394) | ~5-15% (37) | ⬇️ 91% |
+| **Calidad Preservada** | Manual | >= 99% bugs | ✅ Garantizada |
+| **Decisiones** | Arbitrarias | Data-driven | ✅ Precisas |
+| **Confianza Promedio** | Baja | > 0.85 | ⬆️ Alta |
 
 ---
 
-## 🤝 Actualizaciones
+## 🏗️ Estructura de Carpeta
 
-Si actualizas este documento:
-1. Incrementa el número de versión
-2. Documenta cambios en un changelog
-3. Notifica al equipo
-4. Actualiza referencias en otros documentos
+```
+requirements/
+├── REQUIREMENTS.md                    (Full spec with IRMS)
+├── QA-DASHBOARD-IRMS-CHANGES.md      (Summary of changes)
+├── README.md                         (This file)
+└── ...
+```
+
+---
+
+## 📚 Documentación Relacionada
+
+- **[../../IRMS-SUMMARY.md](../../IRMS-SUMMARY.md)** - Resumen ejecutivo visual de cambios (en raíz)
+- **[../architecture/QA-DASHBOARD-IRMS-IMPLEMENTATION.md](../architecture/QA-DASHBOARD-IRMS-IMPLEMENTATION.md)** - Guía técnica de implementación (10 secciones)
+- **[../dummy-data/project-Delphi](../dummy-data/project-Delphi)** - Datos reales Delphi (394 tests, ejemplo)
+
+---
+
+## 🔄 Versionado de Requerimientos
+
+| Versión | Fecha | Cambios Principales |
+|---------|-------|---------------------|
+| 1.0 | May 4 | Baseline con Auth system completo |
+| **1.1** | **May 4** | **✨ NEW: IRMS module (2.7) + Expanded QA Dashboard (2.3.2)** |
+| (Próxima) | TBD | Observability Module (Pillar I) |
+
+---
+
+## 🤝 Cómo Contribuir
+
+Si actualizas estos documentos:
+1. Actualiza la versión en tabla de versionado
+2. Documenta cambios en sección correspondiente
+3. Commit a git con mensaje descriptivo
+4. Notifica al equipo
+
+---
+
+**Última Actualización:** May 4, 2026 (v1.1 - IRMS Added)  
+**Próxima Revisión:** May 25, 2026
