@@ -5,13 +5,6 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   try {
-    const supabase = getSupabaseClient();
-    const { data, error } = await supabase
-      .from('projects')
-      .select('count()', { count: 'exact' });
-
-    if (error) throw error;
-
     res.json({
       status: 'Healthy',
       database: 'Connected',

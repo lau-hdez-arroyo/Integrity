@@ -24,6 +24,7 @@
     "seed": "node scripts/seed-database.js",
     "import-data": "node scripts/import-data.js",
     "import-dummy": "node scripts/import-backend.js",
+    "import-direct": "node scripts/import-direct.js",
     "create-auth-users": "node scripts/create-auth-users.js",
     "generate-data": "node scripts/generate-dummy-data.js",
     "generate-data:large": "node scripts/generate-dummy-data.js --projects=10"

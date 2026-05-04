@@ -10,26 +10,28 @@ import MetricCard from '../components/MetricCard';
 import ChartCard from '../components/ChartCard';
 import SimpleBarChart from '../components/SimpleBarChart';
 import StatusBadge from '../components/StatusBadge';
+import { useSelectedProject } from '../hooks/useSelectedProject';
 import { api } from '../services/api';
 
 /**
  * DeveloperDashboard - Personal metrics and code quality
  */
 export default function DeveloperDashboard() {
+  const selectedProject = useSelectedProject();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const projectId = '550e8400-e29b-41d4-a716-446655440000';
-
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (selectedProject) {
+      fetchDashboardData();
+    }
+  }, [selectedProject]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/dashboard/developer/${projectId}`);
+      const response = await api.get(`/dashboard/developer/${selectedProject.project_id}`);
       setData(response.data.data);
     } catch (err) {
       setError(err.message || 'Failed to load dashboard data');

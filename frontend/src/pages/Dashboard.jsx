@@ -18,9 +18,11 @@ import {
   Security as SecurityIcon,
 } from '@mui/icons-material';
 import AuthContext from '../context/AuthContext';
+import { ProjectContext } from '../context/ProjectContext';
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
+  const { projects } = useContext(ProjectContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -251,10 +253,28 @@ export default function Dashboard() {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box>
+          <Grid
+            item
+            xs={6}
+            sm={3}
+            onClick={() => navigate('/projects')}
+            sx={{
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+              },
+            }}
+          >
+            <Box
+              sx={{
+                padding: '12px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(13, 148, 136, 0.1)',
+              }}
+            >
               <Typography variant="h6" sx={{ color: '#10b981', fontWeight: 700 }}>
-                2
+                {projects?.length || 0}
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748b' }}>
                 Projects

@@ -33,9 +33,9 @@ export default function Login() {
     }
 
     if (data.user) {
-      // Redirect to dashboard after successful login
+      // Redirect to post-login handler which will determine destination based on projects
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/post-login');
       }, 500);
     }
   };

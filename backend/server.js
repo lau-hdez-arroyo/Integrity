@@ -17,6 +17,7 @@ import testSelectionRoutes from './routes/testSelection.js';
 import riskAssessmentRoutes from './routes/riskAssessment.js';
 import dashboardRoutes from './routes/dashboard.js';
 import adminRoutes from './routes/admin.js';
+import usersRoutes from './routes/users.js';
 
 // Configuration
 dotenv.config({ path: '.env.local' });
@@ -25,7 +26,16 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Allow localhost with any port in development
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      callback(null, true);
+    } else if (process.env.CORS_ORIGIN && origin === process.env.CORS_ORIGIN) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -41,6 +51,7 @@ app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
 // Protected routes (AUTH REQUIRED)
+app.use('/api/v1/users', authMiddleware, usersRoutes);
 app.use('/api/v1/projects', authMiddleware, projectRoutes);
 app.use('/api/v1/heatmaps', authMiddleware, heatMapRoutes);
 app.use('/api/v1/test-selection', authMiddleware, testSelectionRoutes);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
@@ -16,6 +16,9 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Alert,
+  Tab,
+  Tabs,
+  CircularProgress,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,53 +26,108 @@ import AddIcon from '@mui/icons-material/Add';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ChartCard from '../components/ChartCard';
 import MetricCard from '../components/MetricCard';
+import { useSelectedProject } from '../hooks/useSelectedProject';
+import { api } from '../services/api';
 
 /**
  * AdminPanel - Project and system administration
  */
 export default function AdminPanel() {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: 'E-commerce Platform',
-      repo: 'https://github.com/company/ecommerce',
-      created: '2026-01-15',
-      status: 'active',
-    },
-    {
-      id: 2,
-      name: 'Analytics Dashboard',
-      repo: 'https://github.com/company/analytics',
-      created: '2026-02-01',
-      status: 'active',
-    },
-  ]);
-
+  const selectedProject = useSelectedProject();
+  const [activeTab, setActiveTab] = useState(0);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
   const [openDialog, setOpenDialog] = useState(false);
-  const [newProject, setNewProject] = useState({ name: '', repo: '' });
+  const [editingProject, setEditingProject] = useState(null);
+  const [formData, setFormData] = useState({ name: '', repo: '' });
 
-  const handleAddProject = () => {
-    if (newProject.name && newProject.repo) {
-      setProjects([
-        ...projects,
-        {
-          id: Math.max(...projects.map(p => p.id)) + 1,
-          ...newProject,
-          created: new Date().toISOString().split('T')[0],
-          status: 'active',
-        },
-      ]);
-      setNewProject({ name: '', repo: '' });
-      setOpenDialog(false);
+  // Cargar proyectos al montar
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  // NO cargar usuarios - solo proyectos por ahora
+  // Members management coming soon
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/projects');
+      setProjects(response.data.data || []);
+    } catch (err) {
+      setError('Failed to load projects');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteProject = (id) => {
-    setProjects(projects.filter(p => p.id !== id));
+  const handleAddProject = () => {
+    setEditingProject(null);
+    setFormData({ name: '', repo: '' });
+    setOpenDialog(true);
+  };
+
+  const handleEditProject = (project) => {
+    setEditingProject(project);
+    setFormData({ name: project.name, repo: project.repository_url || '' });
+    setOpenDialog(true);
+  };
+
+  const handleSaveProject = async () => {
+    if (!formData.name.trim()) {
+      setError('Project name is required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      if (editingProject) {
+        // Actualizar proyecto
+        await api.put(`/projects/${editingProject.project_id}`, {
+          name: formData.name,
+          repository_url: formData.repo,
+        });
+      } else {
+        // Crear nuevo proyecto
+        await api.post('/projects', {
+          name: formData.name,
+          repository_url: formData.repo,
+        });
+      }
+      await fetchProjects();
+      setOpenDialog(false);
+      setFormData({ name: '', repo: '' });
+      setEditingProject(null);
+    } catch (err) {
+      setError(err.message || 'Failed to save project');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProject = async (projectId) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      try {
+        await api.delete(`/projects/${projectId}`);
+        await fetchProjects();
+      } catch (err) {
+        setError('Failed to delete project');
+      }
+    }
   };
 
   return (
     <Container maxWidth="lg">
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ marginBottom: '24px' }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
       {/* Header */}
       <Box sx={{ marginBottom: '40px' }}>
         <Typography
@@ -89,193 +147,156 @@ export default function AdminPanel() {
         </Typography>
       </Box>
 
-      {/* Admin Stats */}
-      <Grid container spacing={3} sx={{ marginBottom: '32px' }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Total Projects"
-            value={projects.length}
-            color="primary"
-            icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Active Users"
-            value="24"
-            color="success"
-            icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="System Health"
-            value="99.9%"
-            color="info"
-            progress={99}
-            icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="API Uptime"
-            value="100%"
-            color="success"
-            icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
-          />
-        </Grid>
-      </Grid>
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', marginBottom: '32px' }}>
+        <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+          <Tab label="Projects" />
+        </Tabs>
+      </Box>
 
-      {/* Project Management */}
-      <Grid item xs={12} sx={{ marginBottom: '32px' }}>
-        <ChartCard
-          title="Project Management"
-          subtitle="Manage projects and integrations"
-          action={
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => setOpenDialog(true)}
-              sx={{
-                background: 'linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%)',
-                textTransform: 'none',
-                fontWeight: 600,
-              }}
-            >
-              Add Project
-            </Button>
-          }
-        >
-          <List>
-            {projects.map((project) => (
-              <ListItem
-                key={project.id}
-                sx={{
-                  backgroundColor: '#f8fafc',
-                  borderRadius: '8px',
-                  marginBottom: '12px',
-                  padding: '16px',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
-                <ListItemText
-                  primary={project.name}
-                  secondary={`Repository: ${project.repo}`}
-                  primaryTypographyProps={{
-                    variant: 'body1',
-                    sx: { fontWeight: 600, color: '#0f172a' },
-                  }}
-                  secondaryTypographyProps={{
-                    variant: 'caption',
-                    sx: { color: '#64748b' },
-                  }}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    onClick={() => {}}
-                    sx={{ marginRight: '8px', color: '#1e3a8a' }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    onClick={() => handleDeleteProject(project.id)}
-                    sx={{ color: '#ef4444' }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </ChartCard>
-      </Grid>
+      {/* TAB 0: Projects Management */}
+      {activeTab === 0 && (
+        <Box>
+          {/* Project Stats */}
+          <Grid container spacing={3} sx={{ marginBottom: '32px' }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard
+                title="Total Projects"
+                value={projects.length}
+                color="primary"
+                icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard
+                title="Active Users"
+                value="24"
+                color="success"
+                icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard
+                title="System Health"
+                value="99.9%"
+                color="info"
+                progress={99}
+                icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard
+                title="API Uptime"
+                value="100%"
+                color="success"
+                icon={<AdminPanelSettingsIcon sx={{ fontSize: '1.5rem' }} />}
+              />
+            </Grid>
+          </Grid>
 
-      {/* Configuration */}
-      <Grid item xs={12}>
-        <ChartCard title="System Configuration" subtitle="Global settings">
-          <Alert severity="info" sx={{ marginBottom: '16px' }}>
-            Configuration changes will affect all projects. Please review carefully.
-          </Alert>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <TextField
-              label="Webhook Secret"
-              type="password"
-              fullWidth
-              value="••••••••••••••••"
-              InputProps={{ readOnly: true }}
-              size="small"
-            />
-
-            <TextField
-              label="Max Test Execution Time (seconds)"
-              type="number"
-              fullWidth
-              defaultValue={300}
-              size="small"
-            />
-
-            <TextField
-              label="Default Risk Tolerance"
-              select
-              fullWidth
-              defaultValue="BALANCED"
-              size="small"
-              SelectProps={{
-                native: true,
-              }}
-            >
-              <option value="AGGRESSIVE">Aggressive</option>
-              <option value="BALANCED">Balanced</option>
-              <option value="CONSERVATIVE">Conservative</option>
-            </TextField>
-
-            <Box sx={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+          {/* Project Management */}
+          <ChartCard
+            title="Project Management"
+            subtitle="Manage projects and integrations"
+            action={
               <Button
                 variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddProject}
                 sx={{
                   background: 'linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%)',
                   textTransform: 'none',
                   fontWeight: 600,
                 }}
               >
-                Save Configuration
+                Add Project
               </Button>
-              <Button variant="outlined" sx={{ textTransform: 'none', fontWeight: 600 }}>
-                Reset to Defaults
-              </Button>
-            </Box>
-          </Box>
-        </ChartCard>
-      </Grid>
+            }
+          >
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                <CircularProgress />
+              </Box>
+            ) : projects.length === 0 ? (
+              <Typography sx={{ textAlign: 'center', color: '#64748b', padding: '24px' }}>
+                No projects found. Create one to get started.
+              </Typography>
+            ) : (
+              <List>
+                {projects.map((project) => (
+                  <ListItem
+                    key={project.project_id}
+                    sx={{
+                      backgroundColor: '#f8fafc',
+                      borderRadius: '8px',
+                      marginBottom: '12px',
+                      padding: '16px',
+                      border: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <ListItemText
+                      primary={project.name}
+                      secondary={`Repository: ${project.repository_url || 'N/A'}`}
+                      primaryTypographyProps={{
+                        variant: 'body1',
+                        sx: { fontWeight: 600, color: '#0f172a' },
+                      }}
+                      secondaryTypographyProps={{
+                        variant: 'caption',
+                        sx: { color: '#64748b' },
+                      }}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleEditProject(project)}
+                        sx={{ marginRight: '8px', color: '#1e3a8a' }}
+                        title="Edit project"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleDeleteProject(project.project_id)}
+                        sx={{ color: '#ef4444' }}
+                        title="Delete project"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </ChartCard>
+        </Box>
+      )}
 
-      {/* Add Project Dialog */}
+      {/* Project Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New Project</DialogTitle>
+        <DialogTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
         <DialogContent sx={{ paddingTop: '24px' }}>
           <TextField
             autoFocus
             label="Project Name"
             fullWidth
-            value={newProject.name}
-            onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             margin="normal"
           />
           <TextField
             label="Repository URL"
             fullWidth
-            value={newProject.repo}
-            onChange={(e) => setNewProject({ ...newProject, repo: e.target.value })}
+            value={formData.repo}
+            onChange={(e) => setFormData({ ...formData, repo: e.target.value })}
             margin="normal"
             placeholder="https://github.com/..."
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleAddProject}>
-            Add Project
+          <Button variant="contained" onClick={handleSaveProject} disabled={loading}>
+            {editingProject ? 'Update' : 'Add'} Project
           </Button>
         </DialogActions>
       </Dialog>

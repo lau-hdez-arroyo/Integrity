@@ -10,19 +10,39 @@ const supabase = createClient(
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const authUser = session?.user ?? null;
+      setUser(authUser);
+      
+      if (authUser) {
+        // Extract role from user metadata
+        const role = authUser.user_metadata?.role || 'user';
+        setUserRole(role);
+        localStorage.setItem('userRole', role);
+      }
+      
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        setUser(session?.user ?? null);
+        const authUser = session?.user ?? null;
+        setUser(authUser);
+        
+        if (authUser) {
+          const role = authUser.user_metadata?.role || 'user';
+          setUserRole(role);
+          localStorage.setItem('userRole', role);
+        } else {
+          setUserRole(null);
+          localStorage.removeItem('userRole');
+        }
       },
     );
 
@@ -35,6 +55,14 @@ export function AuthProvider({ children }) {
       password,
     });
     if (error) throw error;
+    
+    // Extract and store role after login
+    if (data.user) {
+      const role = data.user.user_metadata?.role || 'user';
+      setUserRole(role);
+      localStorage.setItem('userRole', role);
+    }
+    
     return data;
   };
 
@@ -50,10 +78,13 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    
+    setUserRole(null);
+    localStorage.removeItem('userRole');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, userRole, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

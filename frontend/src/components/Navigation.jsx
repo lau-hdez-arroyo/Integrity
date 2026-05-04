@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
@@ -26,6 +26,9 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import SecurityIcon from '@mui/icons-material/Security';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ProjectSelector from './ProjectSelector';
+import ProjectDropdown from './ProjectDropdown';
+import { ProjectContext } from '../context/ProjectContext';
 
 /**
  * Navigation - Sidebar and header navigation
@@ -36,8 +39,11 @@ export default function Navigation() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [projectMenuAnchor, setProjectMenuAnchor] = useState(null);
+  const { selectedProject, projects, selectProject } = useContext(ProjectContext);
 
   const menuOpen = Boolean(anchorEl);
+  const projectMenuOpen = Boolean(projectMenuAnchor);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -50,6 +56,20 @@ export default function Navigation() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
+  };
+
+  const handleProjectMenuOpen = (event) => {
+    setProjectMenuAnchor(event.currentTarget);
+  };
+
+  const handleProjectMenuClose = () => {
+    setProjectMenuAnchor(null);
+  };
+
+  const handleSelectProject = (project) => {
+    selectProject(project);
+    handleProjectMenuClose();
+    navigate('/dashboard');
   };
 
   const navItems = [
@@ -211,11 +231,74 @@ export default function Navigation() {
                 fontWeight: 800,
                 letterSpacing: '-0.02em',
                 cursor: 'pointer',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
               }}
-              onClick={() => navigate('/')}
+              onClick={handleProjectMenuOpen}
+              title="Click to change project"
             >
               INTEGRITY
             </Typography>
+
+            {/* Project Selection Menu */}
+            <Menu
+              anchorEl={projectMenuAnchor}
+              open={projectMenuOpen}
+              onClose={handleProjectMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+            >
+              {projects && projects.length > 0 ? (
+                projects.map((project) => (
+                  <MenuItem
+                    key={project.project_id}
+                    onClick={() => handleSelectProject(project)}
+                    selected={selectedProject?.project_id === project.project_id}
+                    sx={{
+                      backgroundColor: selectedProject?.project_id === project.project_id
+                        ? 'rgba(13, 148, 136, 0.1)'
+                        : 'transparent',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: selectedProject?.project_id === project.project_id ? 600 : 500,
+                        color: selectedProject?.project_id === project.project_id ? '#0d9488' : '#0f172a',
+                      }}
+                    >
+                      {project.name}
+                    </Typography>
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>
+                  <Typography variant="body2" sx={{ color: '#999' }}>
+                    No projects available
+                  </Typography>
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
+
+          {/* Project Selector */}
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <ProjectSelector />
+          </Box>
+
+          {/* Project Dropdown */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <ProjectDropdown />
           </Box>
 
           {/* User Menu */}
