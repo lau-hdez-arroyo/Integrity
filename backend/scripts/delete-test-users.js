@@ -5,8 +5,14 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config({ path: '.env.local' });
+// Get directory of current file
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.resolve(__dirname, '../.env.local');
+
+dotenv.config({ path: envPath });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,

@@ -1,0 +1,115 @@
+# Proyecto de Automatizacion E2E - Explicacion y Prioridades por Modulo
+## 1. Resumen del proyecto
+Este proyecto implementa automatizacion E2E con **Playwright + playwright-bdd** para validar flujos funcionales de Delphi y D.NAV.
+Arquitectura funcional principal:
+- Test cases en Gherkin: `src/tests/features/**`
+- Specs generados por BDD: `features-gen/**`
+- Steps y page objects reutilizables: `src/tests/steps/**`, `src/page-objects/**`
+- Reporteria: Playwright HTML report en `playwright-report/` y resultados en `test-results/`
+Cobertura de features inventariada:
+- Total feature files del proyecto: **186** (ver `docs/feature-files-inventory.md`)
+- En Delphi (generados): regression + in-sprint-automation por modulo
+## 2. Base de priorizacion usada
+Este documento prioriza por impacto de calidad usando:
+1. Volumen de casos por modulo (inventario de features generados)
+2. Resultado de la ultima corrida consolidada (`playwright-report/data/module-summary.json`)
+3. Severidad de fallos observados (elementos no visibles, datos no disponibles, precondiciones inestables)
+Referencia de la ultima corrida usada:
+- Total: 394
+- Passed: 216
+- Failed: 178
+- Skipped: 0
+## 3. Cobertura de features Delphi por modulo
+Conteo de feature files generados en Delphi:
+- in-sprint-automation/maximizers: 16
+- regression/act-list: 7
+- regression/cost-estimation: 3
+- regression/hand-price: 4
+- regression/login: 1
+- regression/manage-request-changes: 1
+- regression/master-list: 1
+- regression/odplist: 2
+- regression/price-challenge: 5
+- regression/private-debt-calculator: 17
+- regression/qualified-vendor-configuration: 2
+- regression/user-management: 1
+## 4. Prioridades por modulo (P0-P3)
+### P0 - Critico (bloquea estabilidad transversal)
+1. **act-list**
+- Ultima corrida: 0 passed / 52 failed / 52 total
+- Razon: 100% de falla en modulo regression con alto impacto funcional en workflow.
+- Tipo de error dominante: sistema no muestra elementos esperados en navegacion/acciones y dependencias de estado de datos.
+2. **qualified-vendor-configuration**
+- Ultima corrida: 0 passed / 11 failed / 11 total
+- Razon: 100% de falla en modulo con flujo de alta/edicion por fecha.
+- Tipo de error dominante: validaciones de UI/datos no consistentes en create/edit.
+3. **maximizers** (In Sprint)
+- Ultima corrida: 43 passed / 36 failed / 79 total
+- Razon: alta tasa de falla en historias activas de sprint (riesgo de release inmediato).
+- Tipo de error dominante: precondiciones de User Management y elementos de formulario no disponibles/variables.
+### P1 - Alto (degrada calidad de regresion)
+1. **odplist**
+- Ultima corrida: 9 passed / 17 failed / 26 total
+- Razon: falla mayoritaria en reglas de country code y acceso por rol.
+2. **hand-price**
+- Ultima corrida: 67 passed / 32 failed / 99 total
+- Razon: volumen alto + numero absoluto de fallos significativo.
+3. **private-debt-calculator**
+- Ultima corrida: 72 passed / 30 failed / 102 total
+- Razon: mayor volumen del suite Delphi con cantidad material de fallos.
+### P2 - Medio (estable, mantener)
+1. **login**
+- Ultima corrida: 2 passed / 0 failed / 2 total
+- Accion: mantener smoke estable, ejecucion en cada pipeline.
+2. **master-list**
+- Ultima corrida: 12 passed / 0 failed / 12 total
+- Accion: mantener cobertura actual y alertas de regresion.
+3. **user-management** (regression)
+- Ultima corrida: 11 passed / 0 failed / 11 total
+- Accion: mantener; vigilar variantes de UI en flujos in-sprint relacionados.
+### P3 - Sin dato suficiente en esta corrida
+Estos modulos tienen features generados pero no quedaron reflejados en el desglose de la ultima corrida consolidada Delphi:
+- cost-estimation
+- manage-request-changes
+- price-challenge
+Accion P3:
+- Ejecutar subset dedicado por modulo y recalcular prioridad con evidencia de pass/fail real.
+## 5. Errores recurrentes por categoria (enfoque de resolucion)
+1. **Elemento esperado no visible/no encontrado**
+- Sintoma: menus, links, o controles no aparecen cuando el test los requiere.
+- Impacto: rompe flujo desde pasos tempranos y dispara cascada de fallos.
+2. **Datos esperados no disponibles en grilla**
+- Sintoma: filas/estados esperados (por ejemplo estatus especificos) no presentes.
+- Impacto: escenarios dependientes de data dinamica fallan de forma intermitente.
+3. **Precondiciones de formulario inestables**
+- Sintoma: campos de Add/Edit no habilitados, sugerencias/autocomplete no consistentes.
+- Impacto: fallos en CRUD y asignaciones por rol/pais.
+## 6. Plan operativo por prioridad
+### Fase 1 (P0)
+1. Stabilizar `act-list` y `qualified-vendor-configuration` con foco en:
+- readiness de pantalla
+- esperas explicitas de controles criticos
+- precondiciones de datos controladas
+2. Stabilizar `maximizers` (in-sprint) con foco en:
+- precondicion de usuario existente vs nuevo
+- manejo robusto de variantes de formulario
+- evidencia persistente de errores de UI
+### Fase 2 (P1)
+1. Reducir fallos en `odplist`, `hand-price`, `private-debt-calculator` por:
+- normalizacion de datos de prueba
+- sincronizacion de tabla/filtros
+- validacion de permisos por rol
+### Fase 3 (P2/P3)
+1. Mantener modulos estables con smoke obligatorio.
+2. Cerrar huecos de visibilidad en P3 con corrida dedicada por modulo.
+## 7. Criterio de salida por modulo
+Un modulo se considera estabilizado cuando:
+1. Tasa de pass >= 95% en 3 corridas consecutivas
+2. Sin errores persistentes de elementos no visibles
+3. Sin fallos por ausencia de datos esperados no justificada por negocio
+---
+## Anexos
+Fuentes usadas para este documento:
+- `playwright-report/data/module-summary.json`
+- `docs/feature-files-inventory.md`
+- Inventario de features Delphi generado desde `src/tests/features/delphi/**`
