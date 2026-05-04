@@ -14,7 +14,11 @@
     "lint:fix": "eslint . --ext .js --fix",
     "db:seed": "node db/seed.js",
     "db:reset": "node db/reset.js",
-    "seed:dummy": "node scripts/seed-dummy-data.js"
+    "seed:dummy": "node scripts/seed-dummy-data.js",
+    "db:wipe": "node scripts/reset-database.js",
+    "users:delete": "node scripts/delete-test-users.js",
+    "users:create": "node scripts/create-test-users.js",
+    "full:reset": "node scripts/full-reset-cli.js"
   },
   "keywords": [
     "test-selection",
