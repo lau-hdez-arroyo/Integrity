@@ -19,6 +19,9 @@ import {
   Tab,
   Tabs,
   CircularProgress,
+  Chip,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -42,10 +45,25 @@ export default function AdminPanel() {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData] = useState({ name: '', repo: '' });
+  const [adoForm, setAdoForm] = useState({
+    organizationUrl: '',
+    adoProject: '',
+    repositoryId: '',
+    personalAccessToken: '',
+  });
+  const [openAdoDialog, setOpenAdoDialog] = useState(false);
+  const [adoProjectTarget, setAdoProjectTarget] = useState(null);
+  const [adoConfigByProject, setAdoConfigByProject] = useState({});
+  const [adoSnapshotByProject, setAdoSnapshotByProject] = useState({});
+  const [adoLoading, setAdoLoading] = useState(false);
+  const [adoMessage, setAdoMessage] = useState(null);
+  const [useAgentCredentials, setUseAgentCredentials] = useState(false);
+  const [agentCredentialsConfigured, setAgentCredentialsConfigured] = useState(false);
 
   // Cargar proyectos al montar
   useEffect(() => {
     fetchProjects();
+    fetchAgentCredentialsStatus();
   }, []);
 
   // NO cargar usuarios - solo proyectos por ahora
@@ -55,12 +73,154 @@ export default function AdminPanel() {
     try {
       setLoading(true);
       const response = await api.get('/projects');
-      setProjects(response.data.data || []);
+      const projectRows = response.data.data || [];
+      setProjects(projectRows);
+      await fetchAdoStatusForProjects(projectRows);
     } catch (err) {
       setError('Failed to load projects');
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAgentCredentialsStatus = async () => {
+    try {
+      const response = await api.get('/admin/ado/agent/status');
+      setAgentCredentialsConfigured(Boolean(response.data?.data?.configured));
+    } catch (_error) {
+      setAgentCredentialsConfigured(false);
+    }
+  };
+
+  const fetchAdoStatusForProjects = async (projectRows) => {
+    const configs = {};
+    const snapshots = {};
+
+    await Promise.all(
+      projectRows.map(async (project) => {
+        const projectId = project.project_id;
+        try {
+          const [configResp, snapshotResp] = await Promise.all([
+            api.get(`/admin/ado/config/${projectId}`),
+            api.get(`/admin/ado/sync/${projectId}/latest`),
+          ]);
+          configs[projectId] = configResp.data?.data || { configured: false };
+          snapshots[projectId] = snapshotResp.data?.data || null;
+        } catch (_error) {
+          configs[projectId] = { configured: false };
+          snapshots[projectId] = null;
+        }
+      }),
+    );
+
+    setAdoConfigByProject(configs);
+    setAdoSnapshotByProject(snapshots);
+  };
+
+  const refreshProjectAdoStatus = async (projectId) => {
+    try {
+      const [configResp, snapshotResp] = await Promise.all([
+        api.get(`/admin/ado/config/${projectId}`),
+        api.get(`/admin/ado/sync/${projectId}/latest`),
+      ]);
+
+      setAdoConfigByProject((prev) => ({
+        ...prev,
+        [projectId]: configResp.data?.data || { configured: false },
+      }));
+
+      setAdoSnapshotByProject((prev) => ({
+        ...prev,
+        [projectId]: snapshotResp.data?.data || null,
+      }));
+    } catch (_error) {
+      // no-op on status refresh errors
+    }
+  };
+
+  const fetchAdoConfig = async (projectId) => {
+    try {
+      const response = await api.get(`/admin/ado/config/${projectId}`);
+      return response.data?.data;
+    } catch (err) {
+      console.error('Failed to load ADO config', err);
+      return null;
+    }
+  };
+
+  const openProjectAdoDialog = async (project) => {
+    setAdoProjectTarget(project);
+    setAdoMessage(null);
+    setError(null);
+
+    const config = await fetchAdoConfig(project.project_id);
+    setAdoForm({
+      organizationUrl: config?.organizationUrl || '',
+      adoProject: config?.adoProject || '',
+      repositoryId: config?.repositoryId || '',
+      personalAccessToken: '',
+    });
+    setOpenAdoDialog(true);
+  };
+
+  const handleConnectAdo = async () => {
+    const targetProjectId = adoProjectTarget?.project_id;
+
+    if (!targetProjectId) {
+      setError('Select a project first');
+      return;
+    }
+
+    if (!useAgentCredentials && (!adoForm.organizationUrl || !adoForm.adoProject || !adoForm.personalAccessToken)) {
+      setError('Organization URL, ADO project, and PAT are required');
+      return;
+    }
+
+    try {
+      setAdoLoading(true);
+      setAdoMessage(null);
+
+      await api.post('/admin/ado/connect', {
+        projectId: targetProjectId,
+        organizationUrl: adoForm.organizationUrl.trim(),
+        adoProject: adoForm.adoProject.trim(),
+        repositoryId: adoForm.repositoryId.trim() || null,
+        personalAccessToken: adoForm.personalAccessToken.trim(),
+        useAgentCredentials,
+      });
+
+      setAdoMessage({ type: 'success', text: 'ADO connection configured successfully' });
+      setAdoForm((prev) => ({ ...prev, personalAccessToken: '' }));
+      await refreshProjectAdoStatus(targetProjectId);
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Failed to connect to ADO');
+    } finally {
+      setAdoLoading(false);
+    }
+  };
+
+  const handleSyncAdo = async (projectId) => {
+    if (!projectId) {
+      setError('Project ID is required');
+      return;
+    }
+
+    try {
+      setAdoLoading(true);
+      setAdoMessage(null);
+
+      const response = await api.post('/admin/ado/sync', { projectId });
+      setAdoMessage({
+        type: 'success',
+        text: `Sync completed in ${response.data?.data?.durationMs || 0} ms`,
+      });
+
+      await refreshProjectAdoStatus(projectId);
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Failed to run ADO sync');
+    } finally {
+      setAdoLoading(false);
     }
   };
 
@@ -236,7 +396,26 @@ export default function AdminPanel() {
                   >
                     <ListItemText
                       primary={project.name}
-                      secondary={`Repository: ${project.repository_url || 'N/A'}`}
+                      secondary={(
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, marginTop: '4px', flexWrap: 'wrap' }}>
+                          <Typography variant="caption" sx={{ color: '#64748b' }}>
+                            Repository: {project.repository_url || 'N/A'}
+                          </Typography>
+                          {adoConfigByProject[project.project_id]?.configured ? (
+                            <Chip size="small" color="success" label="ADO Connected" />
+                          ) : (
+                            <Chip size="small" variant="outlined" label="ADO Not Connected" />
+                          )}
+                          {adoSnapshotByProject[project.project_id]?.synced_at && (
+                            <Chip
+                              size="small"
+                              color="info"
+                              variant="outlined"
+                              label={`Last Sync: ${new Date(adoSnapshotByProject[project.project_id].synced_at).toLocaleDateString()}`}
+                            />
+                          )}
+                        </Box>
+                      )}
                       primaryTypographyProps={{
                         variant: 'body1',
                         sx: { fontWeight: 600, color: '#0f172a' },
@@ -247,6 +426,23 @@ export default function AdminPanel() {
                       }}
                     />
                     <ListItemSecondaryAction>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => openProjectAdoDialog(project)}
+                        sx={{ marginRight: '8px', textTransform: 'none' }}
+                      >
+                        Connect ADO
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        disabled={!adoConfigByProject[project.project_id]?.configured || adoLoading}
+                        onClick={() => handleSyncAdo(project.project_id)}
+                        sx={{ marginRight: '8px', textTransform: 'none' }}
+                      >
+                        Sync
+                      </Button>
                       <IconButton
                         edge="end"
                         onClick={() => handleEditProject(project)}
@@ -271,6 +467,86 @@ export default function AdminPanel() {
           </ChartCard>
         </Box>
       )}
+
+      {/* ADO Dialog */}
+      <Dialog open={openAdoDialog} onClose={() => setOpenAdoDialog(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          Connect Azure DevOps - {adoProjectTarget?.name || 'Project'}
+        </DialogTitle>
+        <DialogContent sx={{ paddingTop: '24px' }}>
+          {adoMessage && (
+            <Alert severity={adoMessage.type} sx={{ marginBottom: '16px' }}>
+              {adoMessage.text}
+            </Alert>
+          )}
+
+          <Typography variant="body2" sx={{ color: '#64748b', marginBottom: '8px' }}>
+            Project repository URL: {adoProjectTarget?.repository_url || 'N/A'}
+          </Typography>
+
+          <FormControlLabel
+            sx={{ marginBottom: '12px' }}
+            control={(
+              <Switch
+                checked={useAgentCredentials}
+                onChange={(e) => setUseAgentCredentials(e.target.checked)}
+                disabled={!agentCredentialsConfigured}
+              />
+            )}
+            label={agentCredentialsConfigured
+              ? 'Use secure server agent credentials'
+              : 'Server agent credentials are not configured'}
+          />
+
+          <Grid container spacing={2} sx={{ marginBottom: '12px' }}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                label="Organization URL"
+                fullWidth
+                value={adoForm.organizationUrl}
+                onChange={(e) => setAdoForm({ ...adoForm, organizationUrl: e.target.value })}
+                placeholder="https://dev.azure.com/your-org"
+                disabled={useAgentCredentials}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
+                label="ADO Project"
+                fullWidth
+                value={adoForm.adoProject}
+                onChange={(e) => setAdoForm({ ...adoForm, adoProject: e.target.value })}
+                placeholder="ProjectName"
+                disabled={useAgentCredentials}
+              />
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField
+                label="Repository ID (optional)"
+                fullWidth
+                value={adoForm.repositoryId}
+                onChange={(e) => setAdoForm({ ...adoForm, repositoryId: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
+                label="Personal Access Token"
+                fullWidth
+                type="password"
+                value={adoForm.personalAccessToken}
+                onChange={(e) => setAdoForm({ ...adoForm, personalAccessToken: e.target.value })}
+                placeholder="Paste PAT"
+                disabled={useAgentCredentials}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAdoDialog(false)}>Close</Button>
+          <Button variant="contained" onClick={handleConnectAdo} disabled={adoLoading}>
+            {adoLoading ? 'Connecting...' : 'Save ADO Connection'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Project Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>

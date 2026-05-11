@@ -18,7 +18,8 @@
     "db:wipe": "node scripts/reset-database.js",
     "users:delete": "node scripts/delete-test-users.js",
     "users:create": "node scripts/create-test-users.js",
-    "full:reset": "node scripts/full-reset-cli.js"
+    "full:reset": "node scripts/full-reset-cli.js",
+    "seed:graph": "node scripts/seed-graph-project-data.js"
   },
   "keywords": [
     "test-selection",

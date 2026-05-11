@@ -13,6 +13,7 @@ import DeveloperDashboard from './pages/DeveloperDashboard';
 import AdminPanel from './pages/AdminPanel';
 import Dashboard from './pages/Dashboard';
 import ProjectsDashboard from './pages/ProjectsDashboard';
+import NarniaImage from './pages/NarniaImage';
 
 // INTEGRITY App with full routing
 export default function App() {
@@ -87,6 +88,14 @@ export default function App() {
               <RoleProtectedRoute allowedRoles={['admin']}>
                 <AdminPanel />
               </RoleProtectedRoute>
+            </ErrorBoundary>
+          ),
+        },
+        {
+          path: 'narnia-image',
+          element: (
+            <ErrorBoundary>
+              <NarniaImage />
             </ErrorBoundary>
           ),
         },

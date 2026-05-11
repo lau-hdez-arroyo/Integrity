@@ -26,7 +26,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import SecurityIcon from '@mui/icons-material/Security';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ProjectSelector from './ProjectSelector';
+import ImageIcon from '@mui/icons-material/Image';
 import ProjectDropdown from './ProjectDropdown';
 import { ProjectContext } from '../context/ProjectContext';
 
@@ -96,6 +96,12 @@ export default function Navigation() {
       icon: <SecurityIcon />,
       path: '/admin',
       color: '#f59e0b',
+    },
+    {
+      label: 'Narnia Image',
+      icon: <ImageIcon />,
+      path: '/narnia-image',
+      color: '#7c3aed',
     },
   ];
 
@@ -289,11 +295,6 @@ export default function Navigation() {
                 </MenuItem>
               )}
             </Menu>
-          </Box>
-
-          {/* Project Selector */}
-          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <ProjectSelector />
           </Box>
 
           {/* Project Dropdown */}

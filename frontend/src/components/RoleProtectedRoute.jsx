@@ -8,7 +8,7 @@ import AuthContext from '../context/AuthContext';
  * Solo deja pasar si el rol del usuario está en la lista de roles permitidos
  */
 export default function RoleProtectedRoute({ children, allowedRoles = [] }) {
-  const { user } = useContext(AuthContext);
+  const { user, userRole } = useContext(AuthContext);
   
   // Si no hay usuario, redirigir a login
   if (!user) {
@@ -16,15 +16,16 @@ export default function RoleProtectedRoute({ children, allowedRoles = [] }) {
   }
 
   // Obtener el rol del usuario desde localStorage o metadata
-  const userRole = localStorage.getItem('userRole') || 'user';
+  const effectiveRole = String(userRole || localStorage.getItem('userRole') || 'user').trim().toLowerCase();
+  const normalizedAllowedRoles = allowedRoles.map((role) => String(role).trim().toLowerCase());
   
   // Si la lista de roles permitidos está vacía, permitir acceso
-  if (allowedRoles.length === 0) {
+  if (normalizedAllowedRoles.length === 0) {
     return children;
   }
 
   // Verificar si el rol está en la lista de roles permitidos
-  if (!allowedRoles.includes(userRole)) {
+  if (!normalizedAllowedRoles.includes(effectiveRole)) {
     return (
       <Container sx={{ py: 6, textAlign: 'center' }}>
         <Box sx={{ marginY: 4 }}>
@@ -32,7 +33,7 @@ export default function RoleProtectedRoute({ children, allowedRoles = [] }) {
             Access Denied
           </Typography>
           <Typography variant="body1" sx={{ color: '#64748b' }}>
-            You don't have permission to access this page. Your role: {userRole}
+            You don't have permission to access this page. Your role: {effectiveRole}
           </Typography>
         </Box>
       </Container>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, Container, CircularProgress, Alert } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Grid, Box, Typography, Container, CircularProgress, Alert, Chip } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
   Speed as SpeedIcon,
@@ -60,34 +60,24 @@ export default function ExecutiveDashboard() {
     );
   }
 
-  // Sample data for demo
-  const defaultData = {
-    qualityScore: 92,
-    defectEscapeRate: 2.3,
-    testExecutionTime: 145,
-    velocity: { current: 8.5, trend: 'up', changePercent: 15 },
-    testMetrics: { total: 850, passed: 780, failed: 70 },
-    releases: { total: 24, withZeroDefects: 18, successRate: 0.75 },
-    releaseData: {
-      releases: [
-        { name: 'v2.1.0', date: '2026-05-01', quality: 94, tests: 850 },
-        { name: 'v2.0.5', date: '2026-04-25', quality: 91, tests: 820 },
-        { name: 'v2.0.0', date: '2026-04-15', quality: 88, tests: 800 },
-        { name: 'v1.9.8', date: '2026-04-01', quality: 85, tests: 750 },
-      ],
-    },
-  };
+  const defaultData = useMemo(() => ({
+    qualityScore: 0,
+    defectEscapeRate: 0,
+    testExecutionTime: 0,
+    velocity: { current: 0, trend: 'up', changePercent: 0 },
+    testMetrics: { total: 0, passed: 0, failed: 0 },
+    releases: { total: 0, withZeroDefects: 0, successRate: 0 },
+    qualityTrend: [],
+    velocityTrend: [],
+    coverageByModule: [],
+    releaseData: { releases: [] },
+    teamMetrics: { totalMembers: 0, byRole: {} },
+    adoMetrics: null,
+  }), []);
 
-  const sampleData = data ? {
-    ...defaultData,
-    ...data,
-    releaseData: {
-      releases: data.releases ? [
-        { name: 'v2.1.0', date: '2026-05-01', quality: data.qualityScore || 92, tests: data.testMetrics?.total || 850 },
-        { name: 'v2.0.5', date: '2026-04-25', quality: Math.max(0, (data.qualityScore || 92) - 3), tests: (data.testMetrics?.total || 850) - 30 },
-      ] : defaultData.releaseData.releases,
-    },
-  } : defaultData;
+  const sampleData = { ...defaultData, ...(data || {}) };
+
+  const adoMetrics = sampleData.adoMetrics || null;
 
   return (
     <Container maxWidth="lg">
@@ -125,7 +115,7 @@ export default function ExecutiveDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Defect Escape Rate"
-            value={`${sampleData.defectEscapeRate}%`}
+            value={`${Number(sampleData.defectEscapeRate || 0).toFixed(2)}%`}
             trend={{ value: 12, direction: 'down' }}
             color="error"
             icon={<BugReportIcon sx={{ fontSize: '1.5rem' }} />}
@@ -135,7 +125,7 @@ export default function ExecutiveDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Test Execution Time"
-            value={`${sampleData.testExecutionTime}s`}
+            value={`${sampleData.testExecutionTime}ms`}
             trend={{ value: 8, direction: 'down' }}
             color="info"
             icon={<SpeedIcon sx={{ fontSize: '1.5rem' }} />}
@@ -145,7 +135,7 @@ export default function ExecutiveDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Velocity"
-            value={`${sampleData.velocity} pts/sprint`}
+            value={`${sampleData.velocity?.current || 0} pts/sprint`}
             trend={{ value: 15, direction: 'up' }}
             color="primary"
             icon={<TrendingUpIcon sx={{ fontSize: '1.5rem' }} />}
@@ -154,17 +144,93 @@ export default function ExecutiveDashboard() {
         </Grid>
       </Grid>
 
+      {/* Team Snapshot */}
+      <Grid container spacing={3} sx={{ marginBottom: '32px' }}>
+        <Grid item xs={12}>
+          <ChartCard title="Team Snapshot" subtitle="Members contributing to this project">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Chip
+                color="primary"
+                label={`Total Members: ${sampleData.teamMetrics?.totalMembers || 0}`}
+              />
+              {Object.entries(sampleData.teamMetrics?.byRole || {}).map(([role, count]) => (
+                <Chip key={role} variant="outlined" label={`${role}: ${count}`} />
+              ))}
+            </Box>
+          </ChartCard>
+        </Grid>
+      </Grid>
+
+      {/* ADO Snapshot - Row 1b */}
+      <Grid container spacing={3} sx={{ marginBottom: '32px' }}>
+        <Grid item xs={12}>
+          <ChartCard
+            title="ADO Project Snapshot"
+            subtitle="Repositories, tests, functionalities and priorities from latest sync"
+          >
+            {!adoMetrics ? (
+              <Alert severity="info" sx={{ marginBottom: '8px' }}>
+                No ADO sync data available yet. Run "Sync Project Data" in Admin Panel first.
+              </Alert>
+            ) : (
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <MetricCard
+                    title="Repositories"
+                    value={adoMetrics.repositories}
+                    color="primary"
+                    icon={<TrendingUpIcon sx={{ fontSize: '1.5rem' }} />}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <MetricCard
+                    title="Tests"
+                    value={adoMetrics.tests}
+                    color="success"
+                    icon={<CheckCircleIcon sx={{ fontSize: '1.5rem' }} />}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <MetricCard
+                    title="Functionalities"
+                    value={adoMetrics.functionalities}
+                    color="warning"
+                    icon={<SpeedIcon sx={{ fontSize: '1.5rem' }} />}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <MetricCard
+                    title="Last Sync"
+                    value={adoMetrics.lastSyncAt ? new Date(adoMetrics.lastSyncAt).toLocaleDateString() : 'N/A'}
+                    color="info"
+                    icon={<BugReportIcon sx={{ fontSize: '1.5rem' }} />}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="body2" sx={{ color: '#64748b', marginBottom: '8px' }}>
+                    Priorities distribution
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip label={`P0: ${adoMetrics.priorities?.P0 || 0}`} color="error" />
+                    <Chip label={`P1: ${adoMetrics.priorities?.P1 || 0}`} color="warning" />
+                    <Chip label={`P2: ${adoMetrics.priorities?.P2 || 0}`} color="info" />
+                    <Chip label={`P3: ${adoMetrics.priorities?.P3 || 0}`} color="success" />
+                    <Chip label={`Unknown: ${adoMetrics.priorities?.Unknown || 0}`} variant="outlined" />
+                  </Box>
+                </Grid>
+              </Grid>
+            )}
+          </ChartCard>
+        </Grid>
+      </Grid>
+
       {/* Charts - Row 2 */}
       <Grid container spacing={3} sx={{ marginBottom: '32px' }}>
         <Grid item xs={12} md={6}>
           <ChartCard title="Quality Score Trend" subtitle="Last 4 quarters">
             <SimpleBarChart
-              data={[
-                { label: 'Q1', value: 78 },
-                { label: 'Q2', value: 85 },
-                { label: 'Q3', value: 89 },
-                { label: 'Q4', value: 92 },
-              ]}
+              data={sampleData.qualityTrend?.length > 0 ? sampleData.qualityTrend : [{ label: 'W-1', value: sampleData.qualityScore || 0 }]}
               color="#0d9488"
               height={280}
             />
@@ -173,12 +239,7 @@ export default function ExecutiveDashboard() {
         <Grid item xs={12} md={6}>
           <ChartCard title="Release Velocity" subtitle="Trends over time">
             <SimpleBarChart
-              data={[
-                { label: 'Sprint 1', value: 65 },
-                { label: 'Sprint 2', value: 72 },
-                { label: 'Sprint 3', value: 80 },
-                { label: 'Sprint 4', value: 85 },
-              ]}
+              data={sampleData.velocityTrend?.length > 0 ? sampleData.velocityTrend : [{ label: 'W-1', value: sampleData.velocity?.current || 0 }]}
               color="#1e3a8a"
               height={280}
             />
@@ -190,14 +251,7 @@ export default function ExecutiveDashboard() {
       <Grid item xs={12} sx={{ marginBottom: '32px' }}>
         <ChartCard title="Coverage Heat Map" subtitle="Test coverage by module">
           <HeatMapChart
-            data={[
-              { module: 'Authentication', coverage: 95, risk: 5 },
-              { module: 'Authorization', coverage: 88, risk: 12 },
-              { module: 'Dashboard', coverage: 92, risk: 8 },
-              { module: 'Reports', coverage: 85, risk: 15 },
-              { module: 'Data Sync', coverage: 78, risk: 22 },
-              { module: 'Integration', coverage: 70, risk: 30 },
-            ]}
+            data={sampleData.coverageByModule?.length > 0 ? sampleData.coverageByModule : [{ module: 'N/A', coverage: 0, risk: 0 }]}
           />
         </ChartCard>
       </Grid>

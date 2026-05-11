@@ -53,6 +53,7 @@ export const riskAssessmentAPI = {
 export const dashboardAPI = {
   getExecutive: (projectId) => apiClient.get(`/dashboard/executive/${projectId}`),
   getQA: (projectId) => apiClient.get(`/dashboard/qa/${projectId}`),
+  getDeveloperModuleGraph: (projectId) => apiClient.get(`/dashboard/developer/${projectId}/module-graph`),
 };
 
 export default apiClient;

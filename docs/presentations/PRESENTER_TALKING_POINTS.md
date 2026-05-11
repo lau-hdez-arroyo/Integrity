@@ -59,6 +59,9 @@ Result:                      Critical bottleneck
 > 
 > There's no intelligence. It's pure guesswork."
 
+Inspiry Velocity --- *** 
+Paladin ---- 
+
 ---
 
 ## 💡 THE SOLUTION (3 minutes)
@@ -74,6 +77,9 @@ Result:                      Critical bottleneck
 > - Which tests would be wasted effort
 > 
 > And then execute **only what matters** in parallel?"
+
+Thinking of Technical mainset - Maria Antonia as mentioned 
+-- Learning of Hackaton as QA 
 
 ### How It Works (The Execution Point):
 

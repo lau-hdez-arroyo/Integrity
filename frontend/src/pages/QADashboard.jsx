@@ -13,6 +13,7 @@ import SimpleBarChart from '../components/SimpleBarChart';
 import StatusBadge from '../components/StatusBadge';
 import { useSelectedProject } from '../hooks/useSelectedProject';
 import { api } from '../services/api';
+import { modulePriorityData } from '../data/modulePriorityData';
 
 /**
  * QADashboard - QA team metrics and test execution details
@@ -58,30 +59,57 @@ export default function QADashboard() {
     );
   }
 
-  // Sample data
-  const sampleData = data || {
+  const modulesWithTests = modulePriorityData.filter((module) => Number.isFinite(module.totalTests));
+  const modulesWithPassRate = modulesWithTests.filter((module) => module.passRate >= 0);
+
+  const derivedTotalTests = modulesWithTests.reduce((sum, module) => sum + (module.totalTests || 0), 0);
+  const derivedPassedTests = modulesWithTests.reduce((sum, module) => sum + (module.passedTests || 0), 0);
+  const derivedFailedTests = Math.max(0, derivedTotalTests - derivedPassedTests);
+  const derivedSkippedTests = modulePriorityData.filter((module) => module.passRate < 0).length;
+
+  const derivedCoverageOverall = modulesWithPassRate.length > 0
+    ? Math.round(modulesWithPassRate.reduce((sum, module) => sum + module.passRate, 0) / modulesWithPassRate.length)
+    : 0;
+
+  const derivedCoverageByModule = modulePriorityData
+    .filter((module) => module.passRate >= 0)
+    .sort((a, b) => b.impact - a.impact)
+    .slice(0, 6)
+    .map((module) => ({
+      module: module.shortLabel,
+      coverage: module.passRate,
+    }));
+
+  const derivedFlakyTests = modulePriorityData
+    .filter((module) => module.passRate >= 0 && module.passRate < 90)
+    .sort((a, b) => a.passRate - b.passRate)
+    .slice(0, 5)
+    .map((module, index) => ({
+      name: `test_${module.id.replace(/-/g, '_')}_${index + 1}`,
+      module: module.shortLabel,
+      failureRate: Math.min(40, Math.max(6, 100 - module.passRate)),
+    }));
+
+  const derivedData = {
     coverage: {
-      overall: 87,
-      byModule: [
-        { module: 'Auth', coverage: 95 },
-        { module: 'API', coverage: 92 },
-        { module: 'UI', coverage: 85 },
-        { module: 'Database', coverage: 88 },
-      ],
+      overall: derivedCoverageOverall,
+      byModule: derivedCoverageByModule,
     },
     testExecutions: {
-      total: 2450,
-      passed: 2387,
-      failed: 45,
-      skipped: 18,
-      avgDuration: 145,
+      total: derivedTotalTests,
+      passed: derivedPassedTests,
+      failed: derivedFailedTests,
+      skipped: derivedSkippedTests,
+      avgDuration: 120,
     },
-    flakyTests: [
-      { name: 'test_async_validation', failureRate: 12, module: 'Auth' },
-      { name: 'test_network_timeout', failureRate: 18, module: 'Integration' },
-      { name: 'test_cache_expiry', failureRate: 8, module: 'Storage' },
-    ],
+    flakyTests: derivedFlakyTests,
   };
+
+  const sampleData = data || derivedData;
+
+  const avgDurationValue = sampleData.testExecutions.avgDuration
+    ?? sampleData.testExecutions.averageDuration
+    ?? 0;
 
   const passRate = (
     (sampleData.testExecutions.passed / sampleData.testExecutions.total) * 100
@@ -141,7 +169,7 @@ export default function QADashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Avg Duration"
-            value={`${sampleData.testExecutions.avgDuration}ms`}
+            value={`${avgDurationValue}ms`}
             color="primary"
             icon={<SpeedIcon sx={{ fontSize: '1.5rem' }} />}
           />

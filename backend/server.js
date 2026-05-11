@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 
 import { initSupabase } from './db/supabase.js';
 import authMiddleware from './middleware/auth.js';
+import requireAdmin from './middleware/requireAdmin.js';
 import errorHandler from './middleware/errorHandler.js';
 import requestLogger from './middleware/requestLogger.js';
 
@@ -47,8 +48,8 @@ app.use(requestLogger);
 app.use('/health', healthRoutes);
 app.use('/api/v1/health', healthRoutes);
 
-// Admin routes (NO AUTH REQUIRED for now - for development)
-app.use('/api/v1/admin', adminRoutes);
+// Admin routes
+app.use('/api/v1/admin', authMiddleware, requireAdmin, adminRoutes);
 
 // Protected routes (AUTH REQUIRED)
 app.use('/api/v1/users', authMiddleware, usersRoutes);
